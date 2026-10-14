@@ -1,0 +1,11 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        # Set this in a .env file next to this one, or leave empty for the mock demo.
+        EXPO_PUBLIC_API_URL: ${EXPO_PUBLIC_API_URL:-}
+    image: trastimport-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped

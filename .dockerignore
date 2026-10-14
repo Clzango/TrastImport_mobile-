@@ -1,0 +1,16 @@
+node_modules
+.expo
+dist
+web-build
+ios
+android
+.git
+.gitignore
+.claude
+.vscode
+.backup
+*.log
+.env*.local
+Dockerfile
+docker-compose.yml
+.dockerignore
