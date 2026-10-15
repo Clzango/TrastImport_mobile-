@@ -1,0 +1,18 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npx -y npm@11.12.1 ci --no-audit --no-fund",
+  "buildCommand": "EXPO_PUBLIC_API_URL=/api npx expo export --platform web --output-dir dist",
+  "outputDirectory": "dist",
+  "devCommand": "npx expo start --web",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://trastipmortapp-production.up.railway.app/:path*" },
+    { "source": "/(company|manage|claim|edit-company|reply)/:id", "destination": "/$1/[id]" },
+    { "source": "/reset-password/:uid/:token", "destination": "/reset-password/[uid]/[token]" }
+  ],
+  "headers": [
+    { "source": "/_expo/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
+    { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] }
+  ]
+}
