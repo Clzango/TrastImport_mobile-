@@ -6,7 +6,7 @@
 # By default the app calls the API at /api on its own origin, and nginx forwards that
 # to API_UPSTREAM (set at run time, e.g. -e API_UPSTREAM=http://host.docker.internal:8000).
 # EXPO_PUBLIC_API_URL is baked into the JS bundle at build time: set it to a full URL to
-# call an API directly (it must allow this site in CORS), or to "" for the mock server.
+# call an API directly (it must allow this site in CORS), or leave it empty to use the Railway API.
 
 FROM node:22-slim AS build
 WORKDIR /app
