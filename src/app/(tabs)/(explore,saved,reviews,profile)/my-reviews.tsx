@@ -15,7 +15,7 @@ import { colors } from "@/lib/theme";
 export default function MyReviewsScreen() {
   const insets = useSafeAreaInsets();
   const { user, status } = useAuth();
-  const reviews = useQuery({ queryKey: keys.myReviews, queryFn: () => api.reviews.mine(user!.id), enabled: !!user });
+  const reviews = useQuery({ queryKey: keys.myReviews, queryFn: api.reviews.mine, enabled: !!user });
 
   return (
     <Screen

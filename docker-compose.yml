@@ -3,9 +3,13 @@ services:
     build:
       context: .
       args:
-        # Set this in a .env file next to this one, or leave empty for the mock demo.
-        EXPO_PUBLIC_API_URL: ${EXPO_PUBLIC_API_URL:-}
+        # The app calls /api on its own origin; nginx forwards it to API_UPSTREAM.
+        EXPO_PUBLIC_API_URL: /api
     image: trastimport-web
+    environment:
+      # Set API_UPSTREAM in your shell to use another backend,
+      # e.g. http://host.docker.internal:8000 for the local Django container.
+      API_UPSTREAM: ${API_UPSTREAM:-https://trastipmortapp-production.up.railway.app}
     ports:
       - "8080:80"
     restart: unless-stopped

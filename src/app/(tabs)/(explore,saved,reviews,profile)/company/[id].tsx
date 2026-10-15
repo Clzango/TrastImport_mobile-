@@ -68,6 +68,8 @@ export default function CompanyScreen() {
     getNextPageParam: (last, pages) => (last.next ? pages.length * 20 : undefined),
   });
   const mine = useQuery({ queryKey: keys.myCompanies, queryFn: api.companies.mine, enabled: status === "signedIn" });
+  // Reviews are linked to the customer profile, not the user account.
+  const customer = useQuery({ queryKey: keys.customer, queryFn: api.customer.me, enabled: status === "signedIn" });
 
   if (company.isPending) return <Loading />;
   if (company.isError) {
@@ -82,7 +84,7 @@ export default function CompanyScreen() {
   const rating = ratingValue(c.average_rating);
   const allReviews = reviews.data?.pages.flatMap((p) => p.results) ?? [];
   const visibleReviews = showAll ? allReviews : allReviews.slice(0, PREVIEW_REVIEWS);
-  const myReview = user ? allReviews.find((r) => r.user === user.id) : undefined;
+  const myReview = user && customer.data ? allReviews.find((r) => r.customer_id === customer.data.id) : undefined;
   const isOwner = !!mine.data?.some((m) => m.id === c.id);
   const saved = isSaved(c.id);
   const channels = contactChannels(c);

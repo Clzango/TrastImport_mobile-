@@ -2,6 +2,7 @@ import { mockSend } from "./mock-server";
 import { clearTokens, saveTokens } from "./token-storage";
 import type {
   Address,
+  AddressType,
   Claim,
   Company,
   Customer,
@@ -90,7 +91,10 @@ async function httpSend(req: TransportRequest): Promise<TransportResponse> {
 
   let res: Response;
   try {
-    res = await fetch(buildUrl(req.path, req.query), { method: req.method, headers, body, credentials: "include" });
+    // Auth is a Bearer token, so cookies are only needed for social login, where the server
+    // keeps the OAuth state in its session. Credentialed CORS also needs CORS_ALLOW_CREDENTIALS.
+    const credentials = req.path.startsWith("/auth/o/") ? "include" : "omit";
+    res = await fetch(buildUrl(req.path, req.query), { method: req.method, headers, body, credentials });
   } catch {
     throw new ApiError(0, "Can't reach TrastImport. Check your connection and try again.");
   }
@@ -201,6 +205,57 @@ async function request<T>(method: TransportRequest["method"], path: string, opts
 }
 
 // ---------------------------------------------------------------------------
+// Wire format
+//
+// The server names a few fields differently from the shapes in types.ts. These convert
+// server responses into those shapes. They leave already-converted fields alone, so the
+// mock server (which speaks the app's shapes) passes through unchanged.
+
+const ADDRESS_TYPE_FROM_WIRE: Record<string, AddressType> = { HQ: "HEADQUARTERS", BR: "BRANCH", WH: "WAREHOUSE", OFF: "OFFICE" };
+const ADDRESS_TYPE_TO_WIRE: Record<AddressType, string> = { HEADQUARTERS: "HQ", BRANCH: "BR", WAREHOUSE: "WH", OFFICE: "OFF" };
+
+function fromWireAddress(a: any): Address {
+  return {
+    ...a,
+    street_address: a.street_address ?? a.address ?? "",
+    address_type: ADDRESS_TYPE_FROM_WIRE[a.address_type] ?? a.address_type,
+  };
+}
+
+function toWireAddress(a: Partial<Address>) {
+  if (USE_MOCK) return a;
+  const { street_address, address_type, ...rest } = a;
+  return {
+    ...rest,
+    ...(street_address !== undefined && { address: street_address }),
+    ...(address_type !== undefined && { address_type: ADDRESS_TYPE_TO_WIRE[address_type] }),
+  };
+}
+
+function fromWireCompany(c: any): Company {
+  return { ...c, addresses: (c.addresses ?? []).map(fromWireAddress) };
+}
+
+function fromWireReview(r: any): Review {
+  const author = r.customer;
+  return {
+    ...r,
+    customer_id: author?.id ?? r.customer_id ?? r.user,
+    author_name: author?.name ?? r.author_name ?? "",
+    author_country: author?.country ?? r.author_country ?? "",
+    author_is_verified: author?.is_verified ?? r.author_is_verified ?? false,
+    date_created: r.date_created ?? r.date,
+  };
+}
+
+/** Claims and verification requests: the server calls the creation date `created_at`. */
+function fromWireRequest<T extends Claim | Verification>(x: any): T {
+  return { ...x, date_created: x.date_created ?? x.created_at };
+}
+
+const mapPage = <T,>(page: Paginated<any>, fn: (x: any) => T): Paginated<T> => ({ ...page, results: page.results.map(fn) });
+
+// ---------------------------------------------------------------------------
 // Endpoints
 
 export const PAGE_SIZE = 10;
@@ -243,53 +298,67 @@ export const api = {
   },
 
   companies: {
-    list: (filters: CompanyFilters, offset = 0) =>
-      request<Paginated<Company>>("GET", "/apps/companies/", {
-        query: { ...filters, limit: PAGE_SIZE, offset },
-      }),
-    get: (id: number) => request<Company>("GET", `/apps/companies/${id}/`),
-    mine: () => request<Company[]>("GET", "/apps/companies/mine/"),
-    update: (id: number, data: Partial<Company>) => request<Company>("PATCH", `/apps/companies/${id}/`, { json: data }),
-    addAddress: (id: number, data: Omit<Address, "id">) =>
-      request<Address>("POST", `/apps/companies/${id}/addresses/`, { json: data }),
-    claim: (id: number, message: string, document?: LocalFile) =>
-      request<Claim>("POST", `/apps/companies/${id}/claim/`, { form: { message, document } }),
-    reviews: (id: number, offset = 0) =>
-      request<Paginated<Review>>("GET", `/apps/companies/${id}/reviews/`, { query: { limit: 20, offset } }),
-    createReview: (id: number, rating: number, comment: string) =>
-      request<Review>("POST", `/apps/companies/${id}/reviews/`, { json: { rating, comment } }),
+    list: async (filters: CompanyFilters, offset = 0) =>
+      mapPage(await request<Paginated<any>>("GET", "/apps/companies/", { query: { ...filters, limit: PAGE_SIZE, offset } }), fromWireCompany),
+    get: async (id: number) => fromWireCompany(await request("GET", `/apps/companies/${id}/`)),
+    mine: async () => (await request<any[]>("GET", "/apps/companies/mine/")).map(fromWireCompany),
+    update: async (id: number, data: Partial<Company>) =>
+      fromWireCompany(await request("PATCH", `/apps/companies/${id}/`, { json: data })),
+    addAddress: async (id: number, data: Omit<Address, "id">) =>
+      fromWireAddress(await request("POST", `/apps/companies/${id}/addresses/`, { json: toWireAddress(data) })),
+    claim: async (id: number, message: string, document?: LocalFile) =>
+      fromWireRequest<Claim>(await request("POST", `/apps/companies/${id}/claim/`, { form: { message, document } })),
+    reviews: async (id: number, offset = 0) =>
+      mapPage(await request<Paginated<any>>("GET", `/apps/companies/${id}/reviews/`, { query: { limit: 20, offset } }), fromWireReview),
+    createReview: async (id: number, rating: number, comment: string) =>
+      fromWireReview(await request("POST", `/apps/companies/${id}/reviews/`, { json: { rating, comment } })),
   },
 
   addresses: {
-    update: (id: number, data: Partial<Address>) => request<Address>("PATCH", `/apps/addresses/${id}/`, { json: data }),
+    update: async (id: number, data: Partial<Address>) =>
+      fromWireAddress(await request("PATCH", `/apps/addresses/${id}/`, { json: toWireAddress(data) })),
     remove: (id: number) => request<void>("DELETE", `/apps/addresses/${id}/`),
   },
 
   reviews: {
-    // The API has no "my reviews" endpoint yet, so this fetches everyone's and filters.
-    // Swap to GET /apps/reviews/mine/ once it exists.
-    mine: async (userId: number) => {
-      const page = await request<Paginated<Review>>("GET", "/apps/reviews/", { query: { limit: 100 } });
-      return page.results.filter((r) => r.user === userId);
+    // The API has no "my reviews" endpoint yet, so this pages through everyone's and keeps
+    // the signed-in customer's. Swap to GET /apps/reviews/mine/ once it exists.
+    mine: async () => {
+      const me = await request<Customer>("GET", "/apps/customers/me/");
+      const mine: Review[] = [];
+      for (let offset = 0; ; offset += 100) {
+        const page = await request<Paginated<any>>("GET", "/apps/reviews/", { query: { limit: 100, offset } });
+        mine.push(...page.results.map(fromWireReview).filter((r) => r.customer_id === me.id));
+        if (!page.next) break;
+      }
+      // Reviews carry only a company id; look up names for the list.
+      const missing = [...new Set(mine.filter((r) => !r.company_name).map((r) => r.company))];
+      const names = new Map<number, string>();
+      await Promise.all(
+        missing.map((id) => request<Company>("GET", `/apps/companies/${id}/`).then((c) => names.set(id, c.name), () => {})),
+      );
+      return mine.map((r) => ({ ...r, company_name: r.company_name ?? names.get(r.company) }));
     },
-    get: (id: number) => request<Review>("GET", `/apps/reviews/${id}/`),
-    update: (id: number, data: { rating?: number; comment?: string }) =>
-      request<Review>("PATCH", `/apps/reviews/${id}/`, { json: data }),
+    get: async (id: number) => fromWireReview(await request("GET", `/apps/reviews/${id}/`)),
+    update: async (id: number, data: { rating?: number; comment?: string }) =>
+      fromWireReview(await request("PATCH", `/apps/reviews/${id}/`, { json: data })),
     remove: (id: number) => request<void>("DELETE", `/apps/reviews/${id}/`),
     addPhoto: (id: number, image: LocalFile) =>
       request<ReviewPhoto>("POST", `/apps/reviews/${id}/photos/`, { form: { image } }),
     removePhoto: (id: number, photoId: number) => request<void>("DELETE", `/apps/reviews/${id}/photos/${photoId}/`),
-    reply: (id: number, reply: string) => request<Review>("POST", `/apps/reviews/${id}/reply/`, { json: { reply } }),
+    reply: async (id: number, reply: string) =>
+      fromWireReview(await request("POST", `/apps/reviews/${id}/reply/`, { json: { reply } })),
   },
 
   claims: {
-    list: () => request<Paginated<Claim>>("GET", "/apps/claims/", { query: { limit: 100 } }),
+    list: async () => mapPage(await request<Paginated<any>>("GET", "/apps/claims/", { query: { limit: 100 } }), fromWireRequest<Claim>),
   },
 
   verifications: {
-    list: () => request<Paginated<Verification>>("GET", "/apps/verifications/", { query: { limit: 100 } }),
-    create: (document: LocalFile, note: string) =>
-      request<Verification>("POST", "/apps/verifications/", { form: { document, note } }),
+    list: async () =>
+      mapPage(await request<Paginated<any>>("GET", "/apps/verifications/", { query: { limit: 100 } }), fromWireRequest<Verification>),
+    create: async (document: LocalFile, note: string) =>
+      fromWireRequest<Verification>(await request("POST", "/apps/verifications/", { form: { document, note } })),
   },
 };
 

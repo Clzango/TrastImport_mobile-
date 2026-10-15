@@ -110,7 +110,7 @@ const verifications: (Verification & { user: number })[] = [];
 function seedReview(companyId: number, userId: number, rating: number, comment: string, days: number, reply = "") {
   const c = customers[userId];
   reviews.push({
-    id: id(), company: companyId, company_name: companies.find((x) => x.id === companyId)!.name, user: userId,
+    id: id(), company: companyId, company_name: companies.find((x) => x.id === companyId)!.name, customer_id: userId,
     author_name: `${c.first_name} ${c.last_name[0]}.`, author_country: c.country, author_is_verified: c.is_verified,
     rating, comment, photos: [], reply, reply_date: reply ? daysAgo(days - 1) : null, date_created: daysAgo(days),
   });
@@ -285,12 +285,12 @@ const routes: [TransportRequest["method"], RegExp, Handler, { auth?: boolean }?]
     const c = companies.find((x) => x.id === Number(cid));
     if (!c) return detail(404, "Not found.");
     if (owners[c.id] === user!.id) return fail(400, ["You can't review your own company."]);
-    if (reviews.some((r) => r.company === c.id && r.user === user!.id)) return fail(400, { non_field_errors: ["You have already reviewed this company. Edit your existing review instead."] });
+    if (reviews.some((r) => r.company === c.id && r.customer_id === user!.id)) return fail(400, { non_field_errors: ["You have already reviewed this company. Edit your existing review instead."] });
     const rating = Number(body.rating);
     if (!(rating >= 1 && rating <= 5)) return fail(400, { rating: ["Ensure this value is between 1 and 5."] });
     const cust = customers[user!.id];
     const r: Review = {
-      id: id(), company: c.id, company_name: c.name, user: user!.id,
+      id: id(), company: c.id, company_name: c.name, customer_id: user!.id,
       author_name: `${cust.first_name} ${cust.last_name ? cust.last_name[0] + "." : ""}`.trim(), author_country: cust.country, author_is_verified: cust.is_verified,
       rating, comment: body.comment ?? "", photos: [], reply: "", reply_date: null, date_created: now(),
     };
@@ -306,7 +306,7 @@ const routes: [TransportRequest["method"], RegExp, Handler, { auth?: boolean }?]
   ["PATCH", /^\/apps\/reviews\/(\d+)\/$/, ({ user, body }, rid) => {
     const r = reviews.find((x) => x.id === Number(rid));
     if (!r) return detail(404, "Not found.");
-    if (r.user !== user!.id) return detail(403, "You do not have permission to perform this action.");
+    if (r.customer_id !== user!.id) return detail(403, "You do not have permission to perform this action.");
     if (body.rating !== undefined) r.rating = Number(body.rating);
     if (body.comment !== undefined) r.comment = body.comment;
     recalc(r.company);
@@ -315,7 +315,7 @@ const routes: [TransportRequest["method"], RegExp, Handler, { auth?: boolean }?]
   ["DELETE", /^\/apps\/reviews\/(\d+)\/$/, ({ user }, rid) => {
     const i = reviews.findIndex((x) => x.id === Number(rid));
     if (i < 0) return detail(404, "Not found.");
-    if (reviews[i].user !== user!.id) return detail(403, "You do not have permission to perform this action.");
+    if (reviews[i].customer_id !== user!.id) return detail(403, "You do not have permission to perform this action.");
     const [r] = reviews.splice(i, 1);
     recalc(r.company);
     return ok(null, 204);
@@ -323,7 +323,7 @@ const routes: [TransportRequest["method"], RegExp, Handler, { auth?: boolean }?]
   ["POST", /^\/apps\/reviews\/(\d+)\/photos\/$/, ({ user, body }, rid) => {
     const r = reviews.find((x) => x.id === Number(rid));
     if (!r) return detail(404, "Not found.");
-    if (r.user !== user!.id) return detail(403, "You do not have permission to perform this action.");
+    if (r.customer_id !== user!.id) return detail(403, "You do not have permission to perform this action.");
     if (r.photos.length >= 5) return fail(400, ["A review can have at most 5 photos."]);
     const uri = fileUri(body.image);
     if (!uri) return fail(400, { image: ["No file was submitted."] });
@@ -334,7 +334,7 @@ const routes: [TransportRequest["method"], RegExp, Handler, { auth?: boolean }?]
   ["DELETE", /^\/apps\/reviews\/(\d+)\/photos\/(\d+)\/$/, ({ user }, rid, pid) => {
     const r = reviews.find((x) => x.id === Number(rid));
     if (!r) return detail(404, "Not found.");
-    if (r.user !== user!.id) return detail(403, "You do not have permission to perform this action.");
+    if (r.customer_id !== user!.id) return detail(403, "You do not have permission to perform this action.");
     r.photos = r.photos.filter((p) => p.id !== Number(pid));
     return ok(null, 204);
   }, { auth: true }],

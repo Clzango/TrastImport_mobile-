@@ -1,5 +1,5 @@
-// Shapes returned by the TrastImport REST API. Regenerate from /api/schema/ once the
-// server is reachable and reconcile any field names that differ.
+// The shapes the screens work with. The REST API names some fields differently
+// (see /api/schema/); api.ts converts them on the way in and out.
 
 export type CompanyType = "SUP" | "LOG";
 export type ReviewStatus = "PENDING" | "APPROVED" | "REJECTED";
@@ -73,7 +73,8 @@ export interface Review {
   id: number;
   company: number;
   company_name?: string;
-  user?: number;
+  /** The author's customer id (not their user id); compare with Customer.id. */
+  customer_id?: number;
   author_name: string;
   author_country: string;
   author_is_verified: boolean;

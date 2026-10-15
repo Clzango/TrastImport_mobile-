@@ -65,7 +65,7 @@ export default function ReviewEditorScreen() {
   };
 
   const offerExistingReview = async () => {
-    const mine = user ? (await api.reviews.mine(user.id)).find((r) => r.company === companyId) : undefined;
+    const mine = user ? (await api.reviews.mine()).find((r) => r.company === companyId) : undefined;
     if (!mine) return;
     const open = () => router.replace({ pathname: "/review-editor", params: { companyId: String(companyId), companyName: params.companyName ?? "", reviewId: String(mine.id) } });
     if (process.env.EXPO_OS === "web") return open();
