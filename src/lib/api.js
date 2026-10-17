@@ -5,11 +5,7 @@ import { clearTokens, saveTokens } from "./token-storage";
  * On web in dev, requests always go through the dev server's /api proxy (see metro.config.js),
  * since the API doesn't allow cross-origin calls.
  */
-export const API_URL = (
-  process.env.EXPO_OS === "web" && __DEV__
-    ? "/api"
-    : process.env.EXPO_PUBLIC_API_URL || "https://trastipmortapp-production.up.railway.app"
-).replace(/\/+$/, "");
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "https://api.trastimport.com";
 
 export class ApiError extends Error {
   status;
@@ -327,3 +323,6 @@ export function errorMessage(error) {
   if (error instanceof Error) return error.message;
   return "Something went wrong.";
 }
+
+
+
