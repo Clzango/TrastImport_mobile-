@@ -7,6 +7,7 @@
   "devCommand": "npx expo start --web",
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/api/:path*/", "destination": "https://trastipmortapp-production.up.railway.app/:path*/" },
     { "source": "/api/:path*", "destination": "https://trastipmortapp-production.up.railway.app/:path*" },
     { "source": "/(company|manage|claim|edit-company|reply)/:id", "destination": "/$1/[id]" },
     { "source": "/reset-password/:uid/:token", "destination": "/reset-password/[uid]/[token]" }
