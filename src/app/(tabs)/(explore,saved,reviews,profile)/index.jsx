@@ -9,7 +9,7 @@ import { Wordmark } from "@/components/auth-ui";
 import { CompanyCard } from "@/components/company-card";
 import { LanguageButton } from "@/components/language";
 import { Text } from "@/components/text";
-import { EmptyState, ErrorState, Icon, Loading } from "@/components/ui";
+import { ErrorState, Icon, Loading } from "@/components/ui";
 import { api, errorMessage } from "@/lib/api";
 import { photos } from "@/lib/photos";
 import { keys } from "@/lib/query-keys";
@@ -153,14 +153,13 @@ export default function ExploreScreen() {
         ))}
       </View>
 
-      {/* Featured */}
-      <View style={{ gap: 12 }}>
-        <SectionHeader title="Featured Companies" onSeeAll={() => openSearch({ verified: "1", sort: "-average_rating" })} />
-        <CompanyList
-          query={featured}
-          empty={<EmptyState icon={{ sf: "checkmark.seal", md: "verified" }} title="No verified companies yet" message="Verified suppliers and shipping companies will show up here." />}
-        />
-      </View>
+      {/* Featured: verified companies only, so the section is left out until there are some. */}
+      {!(featured.isSuccess && featured.data.results.length === 0) && (
+        <View style={{ gap: 12 }}>
+          <SectionHeader title="Featured Companies" onSeeAll={() => openSearch({ verified: "1", sort: "-average_rating" })} />
+          <CompanyList query={featured} empty={null} />
+        </View>
+      )}
 
       {/* Categories */}
       <View style={{ gap: 12 }} onLayout={(e) => setCategoriesY(e.nativeEvent.layout.y)}>
