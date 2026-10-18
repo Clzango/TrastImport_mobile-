@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, router } from "expo-router";
 import { Pressable, RefreshControl, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ReviewCard } from "@/components/review-card";
 import { SignInPrompt } from "@/components/sign-in-prompt";
 import { Text } from "@/components/text";
@@ -13,13 +12,12 @@ import { keys } from "@/lib/query-keys";
 import { colors } from "@/lib/theme";
 
 export default function MyReviewsScreen() {
-  const insets = useSafeAreaInsets();
   const { user, status } = useAuth();
   const reviews = useQuery({ queryKey: keys.myReviews, queryFn: api.reviews.mine, enabled: !!user });
 
   return (
     <Screen
-      contentContainerStyle={{ paddingTop: insets.top + 28, gap: 12 }}
+      contentContainerStyle={{ paddingTop: 8, gap: 12 }}
       refreshControl={user ? <RefreshControl refreshing={reviews.isRefetching} onRefresh={() => reviews.refetch()} tintColor={colors.accent} /> : undefined}
     >
       <View style={{ gap: 6, marginBottom: 8 }}>

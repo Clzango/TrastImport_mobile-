@@ -14,6 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { ApiError } from "@/lib/api";
 import { AuthProvider, useAuth } from "@/lib/auth";
+import { ChatProvider } from "@/lib/chat";
 import { SavedProvider } from "@/lib/saved";
 import { colors, fonts } from "@/lib/theme";
 
@@ -47,12 +48,14 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <SavedProvider>
-          <ThemeProvider value={theme}>
-            <StatusBar style="dark" />
-            <RootStack />
-          </ThemeProvider>
-        </SavedProvider>
+        <ChatProvider>
+          <SavedProvider>
+            <ThemeProvider value={theme}>
+              <StatusBar style="dark" />
+              <RootStack />
+            </ThemeProvider>
+          </SavedProvider>
+        </ChatProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
@@ -83,6 +86,7 @@ function RootStack() {
     >
       <Stack.Protected guard={signedIn}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="review-editor" options={{ ...modal, title: "Write a Review" }} />
         <Stack.Screen name="claim/[id]" options={{ ...modal, title: "Claim Company" }} />
         <Stack.Screen name="edit-profile" options={{ ...modal, title: "Account Information" }} />
@@ -98,10 +102,14 @@ function RootStack() {
         />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
+        <Stack.Screen name="welcome" options={{ ...authScreen, contentStyle: { backgroundColor: colors.accentPressed } }} />
         <Stack.Screen name="login" options={authScreen} />
         <Stack.Screen name="signup" options={authScreen} />
+        <Stack.Screen name="verify" options={{ ...authScreen, animation: "slide_from_right" }} />
         <Stack.Screen name="forgot-password" options={{ ...modal, title: "Reset Password" }} />
       </Stack.Protected>
+      {/* Where WeChat sends the browser back after sign-in (web). */}
+      <Stack.Screen name="auth/callback" options={{ headerShown: false, animation: "none" }} />
       {/* Opened from the reset email, whether or not this device is signed in. */}
       <Stack.Screen name="reset-password/[uid]/[token]" options={{ ...modal, title: "New Password" }} />
     </Stack>

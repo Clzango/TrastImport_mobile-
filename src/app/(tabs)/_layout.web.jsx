@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { Icon } from "@/components/ui";
+import { useUnreadCount } from "@/lib/chat";
 import { colors, fonts } from "@/lib/theme";
 
 // Native tabs render as a floating top bar on web, covering screen titles.
@@ -10,6 +11,7 @@ const tab = (title, icon) => ({
 });
 
 export default function TabsLayout() {
+  const unread = useUnreadCount();
   return (
     <Tabs
       screenOptions={{
@@ -21,8 +23,9 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen name="(explore)" options={tab("Explore", { sf: "safari", md: "explore" })} />
-      <Tabs.Screen name="(saved)" options={tab("Saved", { sf: "bookmark", md: "bookmark" })} />
-      <Tabs.Screen name="(reviews)" options={tab("Reviews", { sf: "star", md: "star" })} />
+      <Tabs.Screen name="(saved)" options={tab("Favorites", { sf: "heart", md: "favorite" })} />
+      {/* The (reviews) group holds the Messages tab; group names don't appear in URLs. */}
+      <Tabs.Screen name="(reviews)" options={{ ...tab("Messages", { sf: "bubble.left.and.bubble.right", md: "forum" }), tabBarBadge: unread || undefined }} />
       <Tabs.Screen name="(profile)" options={tab("Profile", { sf: "person", md: "person" })} />
     </Tabs>
   );

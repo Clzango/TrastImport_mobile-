@@ -11,17 +11,34 @@ export const API_URL = (
     : process.env.EXPO_PUBLIC_API_URL || "https://trastipmortapp-production.up.railway.app"
 ).replace(/\/+$/, "");
 
+/**
+ * Chat WebSocket. Vercel's /api rewrite can't carry WebSockets, so when the API is behind that
+ * proxy the socket goes straight to Railway (it authenticates with a token, not cookies).
+ */
+export const WS_URL =
+  process.env.EXPO_PUBLIC_WS_URL ||
+  `${(API_URL.startsWith("http") ? API_URL : "https://trastipmortapp-production.up.railway.app").replace(/^http/, "ws")}/ws/chat/`;
+
 export class ApiError extends Error {
   status;
   fieldErrors;
   retryAfter;
+  code;
 
-  constructor(status, message, fieldErrors = {}, retryAfter) {
+  constructor(status, message, fieldErrors = {}, retryAfter, code) {
     super(message);
     this.status = status;
     this.fieldErrors = fieldErrors;
     this.retryAfter = retryAfter;
+    this.code = code;
   }
+}
+
+/** Login refused because the account's email isn't confirmed yet. */
+export function isEmailNotConfirmed(error) {
+  if (!(error instanceof ApiError) || error.status !== 401) return false;
+  // The server doesn't put the error code in the body yet, so fall back to its message.
+  return error.code === "email_not_confirmed" || error.message.startsWith("Confirm your email");
 }
 
 // ---------------------------------------------------------------------------
@@ -87,17 +104,25 @@ async function send(req) {
 // Session
 
 let tokens = null;
+let remember = true;
 let onExpired = null;
 let refreshing = null;
 
-export function setTokens(next) {
+/** Without `remember`, the session lasts until the app is closed (tokens stay in memory only). */
+export function setTokens(next, options) {
+  if (options?.remember !== undefined) remember = options.remember;
   tokens = next;
-  if (next) saveTokens(next);
+  if (next && remember) saveTokens(next);
   else clearTokens();
 }
 
 export function getTokens() {
   return tokens;
+}
+
+/** Gets a new access token with the refresh token. Resolves to false if the session is over. */
+export function refreshSession() {
+  return refreshAccess();
 }
 
 export function onSessionExpired(handler) {
@@ -136,7 +161,7 @@ function toApiError(res) {
   if (status >= 500) return new ApiError(status, "TrastImport is having trouble right now. Try again in a moment.");
   if (Array.isArray(data)) return new ApiError(status, firstString(data) ?? "Something went wrong.");
   if (data && typeof data === "object") {
-    if (typeof data.detail === "string") return new ApiError(status, data.detail);
+    if (typeof data.detail === "string") return new ApiError(status, data.detail, {}, undefined, data.code);
     const fieldErrors = {};
     let banner = firstString(data.non_field_errors);
     for (const [key, value] of Object.entries(data)) {
@@ -228,6 +253,22 @@ export const api = {
       request("POST", "/auth/jwt/create/", { json: { email, password }, auth: false }),
     signUp: (data) =>
       request("POST", "/auth/users/", { json: data, auth: false }),
+    resendActivation: (email) =>
+      request("POST", "/auth/users/resend_activation/", { json: { email }, auth: false }),
+    /** Activates a new account with the 6-digit code from the sign-up email; returns tokens. */
+    activateWithCode: (email, code) =>
+      request("POST", "/auth/users/activate_code/", { json: { email, code }, auth: false }),
+    /** Second login step: the code emailed after a correct password; returns tokens. */
+    verifyLoginCode: (ticket, code) =>
+      request("POST", "/auth/otp/verify/", { json: { ticket, code }, auth: false }),
+    resendLoginCode: (ticket) =>
+      request("POST", "/auth/otp/resend/", { json: { ticket }, auth: false }),
+    /** Exchanges a Google ID token for this API's access/refresh tokens. */
+    google: (id_token) =>
+      request("POST", "/auth/google/", { json: { id_token }, auth: false }),
+    /** Same as google(), for Sign in with Apple. Apple only sends the name on the first sign-in. */
+    apple: (id_token, first_name, last_name) =>
+      request("POST", "/auth/apple/", { json: { id_token, first_name, last_name }, auth: false }),
     me: () => request("GET", "/auth/users/me/"),
     resetPassword: (email) =>
       request("POST", "/auth/users/reset_password/", { json: { email }, auth: false }),
@@ -255,6 +296,8 @@ export const api = {
     list: async (filters, offset = 0) =>
       mapPage(await request("GET", "/apps/companies/", { query: { ...filters, limit: PAGE_SIZE, offset } }), fromWireCompany),
     get: async (id) => fromWireCompany(await request("GET", `/apps/companies/${id}/`)),
+    /** Countries that have companies: [{ code: "CN", name: "China", count: 12 }], most companies first. */
+    countries: (company_type) => request("GET", "/apps/companies/countries/", { query: { company_type } }),
     // The schema documents a single company here; accept a list, a page or one object.
     mine: async () => {
       const data = await request("GET", "/apps/companies/mine/");
@@ -312,6 +355,21 @@ export const api = {
 
   claims: {
     list: async () => mapPage(await request("GET", "/apps/claims/", { query: { limit: 100 } }), fromWireRequest),
+  },
+
+  chat: {
+    /** Your conversations, as a buyer and as a company owner; most recent first. */
+    conversations: (offset = 0) => request("GET", "/chat/conversations/", { query: { limit: 50, offset } }),
+    conversation: (id) => request("GET", `/chat/conversations/${id}/`),
+    /** Opens the conversation with a company, or returns the existing one. */
+    open: (companyId) => request("POST", "/chat/conversations/", { json: { company_id: companyId } }),
+    /** Oldest first. `before`/`after` are message ids for older or newer pages. */
+    messages: (id, { before, after, limit = 50 } = {}) =>
+      request("GET", `/chat/conversations/${id}/messages/`, { query: { before, after, limit } }),
+    send: (id, body) => request("POST", `/chat/conversations/${id}/messages/`, { json: { body } }),
+    /** A message with a file ({ uri, name, type }); the reply's `attachment` has url, name, size, content_type. */
+    sendFile: (id, body, file) => request("POST", `/chat/conversations/${id}/messages/`, { form: { body: body ?? "", attachment: file } }),
+    read: (id) => request("POST", `/chat/conversations/${id}/read/`),
   },
 
   verifications: {
