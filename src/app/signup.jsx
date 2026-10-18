@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AuthHeader } from "@/components/auth-ui";
 import { PillTabs } from "@/components/pill-tabs";
@@ -65,13 +65,14 @@ export default function SignUpScreen() {
   const ready = fullName.trim() && email && password.length >= 8 && confirm === password && (!business || (companyName.trim() && businessType));
 
   return (
-    <ScrollView
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="interactive"
-      style={{ flex: 1, backgroundColor: colors.cell }}
-      contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top + 32, paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}
-    >
-      <AuthHeader />
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.cell }} behavior={process.env.EXPO_OS === "ios" ? "padding" : undefined}>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        style={{ flex: 1, backgroundColor: colors.cell }}
+        contentContainerStyle={{ flexGrow: 1, width: "100%", maxWidth: 560, alignSelf: "center", paddingTop: insets.top + 32, paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}
+      >
+        <AuthHeader />
 
       <View style={{ marginTop: 32, gap: 8 }}>
         <Text accessibilityRole="header" style={{ fontSize: 28, lineHeight: 32, fontWeight: "800", letterSpacing: -0.5, color: colors.label }}>
@@ -178,6 +179,7 @@ export default function SignUpScreen() {
           Log In
         </Text>
       </Text>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

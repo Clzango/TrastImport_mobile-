@@ -162,7 +162,8 @@ export function Field({ label, error, labelAction, revealable, icon, inset = tru
           style={[
             {
               minHeight: multiline ? 110 : 52,
-              paddingHorizontal: 16,
+              // Separate left/right only: Android lets paddingHorizontal win over paddingLeft,
+              // which put the text under the icon.
               paddingLeft: icon ? 46 : 16,
               paddingRight: revealable ? 52 : 16,
               paddingVertical: multiline ? 14 : 0,
