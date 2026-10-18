@@ -9,6 +9,7 @@
     "userInterfaceStyle": "light",
     "ios": {
       "bundleIdentifier": "com.trastimport.app",
+      "usesAppleSignIn": true,
       "icon": "./assets/expo.icon"
     },
     "android": {
@@ -41,7 +42,8 @@
       "expo-web-browser",
       "expo-font",
       "expo-status-bar",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-apple-authentication"
     ],
     "experiments": {
       "reactCompiler": true

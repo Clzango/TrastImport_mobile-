@@ -1,6 +1,10 @@
 export const keys = {
   companies: (filters) => (filters ? ["companies", filters] : ["companies"]),
   company: (id) => ["company", id],
+  countries: (companyType) => ["countries", companyType ?? "ALL"],
+  conversations: ["conversations"],
+  conversation: (id) => ["conversation", id],
+  messages: (id) => ["messages", id],
   companyReviews: (id) => ["company-reviews", id],
   review: (id) => ["review", id],
   myReviews: ["my-reviews"],

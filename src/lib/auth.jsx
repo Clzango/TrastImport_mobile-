@@ -3,10 +3,11 @@ import * as Linking from "expo-linking";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
-import { api, ApiError, onSessionExpired, setTokens } from "./api";
+import { api, ApiError, isEmailNotConfirmed, onSessionExpired, setTokens } from "./api";
 import { loadTokens } from "./token-storage";
 
 const AuthContext = createContext(null);
+const PROVIDER_KEY = "trastimport.signInProvider";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -16,8 +17,8 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
   const finishSignIn = useCallback(
-    async (tokens) => {
-      setTokens(tokens);
+    async (tokens, remember = true) => {
+      setTokens(tokens, { remember });
       const me = await api.auth.me();
       queryClient.clear();
       setUser(me);
@@ -57,14 +58,40 @@ export function AuthProvider({ children }) {
       status,
       user,
       signOut,
-      signIn: async (email, password) => finishSignIn(await api.auth.login(email, password)),
+      /**
+       * Resolves to { otp: { ticket, email } } when the API wants the emailed code as a second
+       * step (finish with verifyLoginCode), or to undefined once signed in.
+       */
+      signIn: async (email, password, remember = true) => {
+        const res = await api.auth.login(email, password);
+        if (res.otp_required) return { otp: { ticket: res.ticket, email: res.email || email } };
+        await finishSignIn(res, remember);
+      },
+      verifyLoginCode: async (ticket, code, remember = true) => finishSignIn(await api.auth.verifyLoginCode(ticket, code), remember),
+      activateWithCode: async (email, code) => finishSignIn(await api.auth.activateWithCode(email, code)),
+      /** Resolves to "confirmEmail" when the account must be confirmed from the emailed link first. */
       signUp: async (data) => {
         await api.auth.signUp(data);
-        await finishSignIn(await api.auth.login(data.email, data.password));
+        try {
+          await finishSignIn(await api.auth.login(data.email, data.password));
+          return "signedIn";
+        } catch (error) {
+          if (isEmailNotConfirmed(error)) return "confirmEmail";
+          throw error;
+        }
       },
+      signInWithGoogle: async (idToken) => finishSignIn(await api.auth.google(idToken)),
+      signInWithApple: async (idToken, firstName, lastName) => finishSignIn(await api.auth.apple(idToken, firstName, lastName)),
       signInWithProvider: async (provider) => {
         const redirectUri = Linking.createURL("auth/callback");
         const { authorization_url } = await api.auth.socialUrl(provider, redirectUri);
+        if (process.env.EXPO_OS === "web") {
+          // A full-page redirect, since popups opened after an await get blocked. The provider
+          // sends the browser back to /auth/callback, which calls completeProviderSignIn.
+          globalThis.sessionStorage?.setItem(PROVIDER_KEY, provider);
+          globalThis.location.assign(authorization_url);
+          return new Promise(() => {}); // the page is unloading
+        }
         const result = await WebBrowser.openAuthSessionAsync(authorization_url, redirectUri);
         if (result.type !== "success") return false;
         const { queryParams } = Linking.parse(result.url);
@@ -76,6 +103,14 @@ export function AuthProvider({ children }) {
         const res = await api.auth.socialComplete(provider, code, state);
         await finishSignIn({ access: res.access, refresh: res.refresh });
         return true;
+      },
+      /** Web only: finishes signInWithProvider after the provider redirects back with ?code&state. */
+      completeProviderSignIn: async (code, state) => {
+        const provider = globalThis.sessionStorage?.getItem(PROVIDER_KEY);
+        globalThis.sessionStorage?.removeItem(PROVIDER_KEY);
+        if (!provider) throw new ApiError(400, "This sign-in link has expired. Start again from Log In.");
+        const res = await api.auth.socialComplete(provider, code, state);
+        await finishSignIn({ access: res.access, refresh: res.refresh });
       },
       refreshUser: async () => setUser(await api.auth.me()),
     }),

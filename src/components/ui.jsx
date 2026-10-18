@@ -138,17 +138,19 @@ export function Row({ title, subtitle, value, icon, iconStyle = "tile", onPress,
 // Forms
 
 /** Label above a bordered input; errors render under the field, as the API spec asks. */
-export function Field({ label, error, labelAction, revealable, inset = true, multiline, secureTextEntry, style, onFocus, onBlur, ...props }) {
+export function Field({ label, error, labelAction, revealable, icon, inset = true, multiline, secureTextEntry, style, onFocus, onBlur, ...props }) {
   const [focused, setFocused] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const borderColor = error ? colors.danger : focused ? colors.label : colors.inputBorder;
 
   return (
     <View style={{ gap: 6, paddingHorizontal: inset ? 16 : 0, paddingVertical: inset ? 12 : 0 }}>
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 20 }}>
-        <Text style={{ fontSize: 14, fontWeight: "600", color: colors.label }}>{label}</Text>
-        {labelAction}
-      </View>
+      {(label || labelAction) && (
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 20 }}>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.label }}>{label}</Text>
+          {labelAction}
+        </View>
+      )}
       <View>
         <TextInput
           placeholderTextColor={colors.tertiaryLabel}
@@ -161,6 +163,7 @@ export function Field({ label, error, labelAction, revealable, inset = true, mul
             {
               minHeight: multiline ? 110 : 52,
               paddingHorizontal: 16,
+              paddingLeft: icon ? 46 : 16,
               paddingRight: revealable ? 52 : 16,
               paddingVertical: multiline ? 14 : 0,
               borderWidth: 1.5,
@@ -178,6 +181,11 @@ export function Field({ label, error, labelAction, revealable, inset = true, mul
           ]}
           {...props}
         />
+        {icon && (
+          <View style={{ position: "absolute", left: 16, top: 0, bottom: 0, justifyContent: "center", pointerEvents: "none" }}>
+            <Icon name={icon} size={19} color={focused ? colors.accent : colors.tertiaryLabel} />
+          </View>
+        )}
         {revealable && (
           <Pressable
             onPress={() => setRevealed((r) => !r)}
@@ -214,12 +222,14 @@ export function Button({
   disabled,
   variant = "filled",
   icon,
+  trailingIcon,
   style,
 }
 ) {
   const filled = variant === "filled";
-  const outlined = variant === "outline" || variant === "tinted" || variant === "destructive";
-  const fg = filled ? colors.onAccent : variant === "destructive" ? colors.danger : variant === "plain" ? colors.accent : colors.label;
+  const accentOutline = variant === "accentOutline";
+  const outlined = variant === "outline" || variant === "tinted" || variant === "destructive" || accentOutline;
+  const fg = filled ? colors.onAccent : variant === "destructive" ? colors.danger : variant === "plain" || accentOutline ? colors.accent : colors.label;
   return (
     <Pressable
       onPress={() => {
@@ -231,7 +241,7 @@ export function Button({
         {
           backgroundColor: filled ? (pressed ? colors.accentPressed : colors.accent) : outlined ? (pressed ? colors.fill : colors.cell) : "transparent",
           borderWidth: outlined ? 1.5 : 0,
-          borderColor: variant === "destructive" ? colors.dangerSoft : colors.inputBorder,
+          borderColor: variant === "destructive" ? colors.dangerSoft : accentOutline ? colors.accent : colors.inputBorder,
           minHeight: 52,
           borderRadius: radius.button,
           borderCurve: "continuous",
@@ -247,6 +257,7 @@ export function Button({
     >
       {loading ? <ActivityIndicator color={fg} /> : icon ? <Icon name={icon} size={18} color={fg} weight="semibold" /> : null}
       {!loading && <Text style={{ fontSize: filled ? 16 : 15, fontWeight: "700", color: fg }}>{title}</Text>}
+      {!loading && trailingIcon ? <Icon name={trailingIcon} size={18} color={fg} weight="semibold" /> : null}
     </Pressable>
   );
 }
@@ -351,9 +362,9 @@ export function StarPicker({ value, onChange }) {
 /** Blue "Verified" chip. Blue is kept for trust signals so it never reads as a brand-orange button. */
 export function VerifiedBadge({ label = "Verified" }) {
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 4, alignSelf: "flex-start", backgroundColor: colors.infoSoft, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
-      <Icon name={{ sf: "checkmark", md: "check" }} size={12} color={colors.info} weight="bold" />
-      <Text style={{ fontSize: 12, fontWeight: "700", color: colors.info }}>{label}</Text>
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 4, alignSelf: "flex-start", backgroundColor: colors.infoSoft, borderRadius: 6, paddingLeft: 4, paddingRight: 8, paddingVertical: 2 }}>
+      <Icon name={{ sf: "checkmark.seal.fill", md: "verified" }} size={14} color="#2F6FE4" />
+      <Text style={{ fontSize: 12, fontWeight: "700", color: "#2F6FE4" }}>{label}</Text>
     </View>
   );
 }
