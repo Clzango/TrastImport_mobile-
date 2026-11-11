@@ -17,11 +17,11 @@ const ACCOUNT_TYPES = [
   { value: "PERSONAL", label: "Personal Account" },
 ];
 
-// SUP and LOG match the API's company types.
+// Business accounts are for companies listed on TrastImport; SUP and LOG match the API's
+// company types. Importers and buyers sign up with a personal account.
 const BUSINESS_TYPES = [
   { value: "SUP", label: "Supplier / Manufacturer", description: "Find buyers and showcase your products", icon: { sf: "building.2.fill", md: "factory" } },
   { value: "LOG", label: "Shipping / Logistics Company", description: "Offer freight and logistics services", icon: { sf: "ferry.fill", md: "directions_boat" } },
-  { value: "BUY", label: "Importer / Buyer", description: "Source products and shipping for your business", icon: { sf: "cart.fill", md: "shopping_cart" } },
 ];
 
 const FIELDS = ["first_name", "last_name", "company_name", "business_type", "email", "password"];
