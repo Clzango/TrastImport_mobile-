@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { KeyboardAvoidingView, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppleSignInButton } from "@/components/apple-sign-in";
 import { AuthHeader, Checkbox, OrDivider } from "@/components/auth-ui";
@@ -55,13 +55,14 @@ export default function LoginScreen() {
   const otherError = google.error ?? apple.error ?? wechat.error ?? confirm.error ?? providerLoadError;
 
   return (
-    <ScrollView
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="interactive"
-      style={{ flex: 1, backgroundColor: colors.cell }}
-      contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top + 32, paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}
-    >
-      <AuthHeader />
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.cell }} behavior={process.env.EXPO_OS === "ios" ? "padding" : undefined}>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        style={{ flex: 1, backgroundColor: colors.cell }}
+        contentContainerStyle={{ flexGrow: 1, width: "100%", maxWidth: 560, alignSelf: "center", paddingTop: insets.top + 32, paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}
+      >
+        <AuthHeader />
 
       <View style={{ marginTop: 36, gap: 8 }}>
         <Text accessibilityRole="header" style={{ fontSize: 28, lineHeight: 32, fontWeight: "800", letterSpacing: -0.5, color: colors.label }}>
@@ -155,6 +156,7 @@ export default function LoginScreen() {
           Sign Up
         </Text>
       </Text>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

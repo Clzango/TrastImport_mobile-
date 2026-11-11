@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import { SymbolView } from "expo-symbols";
-import { Children, Fragment, useState } from "react";
+import { Children, Fragment, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 import { colors, radius } from "@/lib/theme";
 import { Text, TextInput } from "./text";
@@ -141,6 +141,7 @@ export function Row({ title, subtitle, value, icon, iconStyle = "tile", onPress,
 export function Field({ label, error, labelAction, revealable, icon, inset = true, multiline, secureTextEntry, style, onFocus, onBlur, ...props }) {
   const [focused, setFocused] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  const inputRef = useRef(null);
   const borderColor = error ? colors.danger : focused ? colors.label : colors.inputBorder;
 
   return (
@@ -151,8 +152,27 @@ export function Field({ label, error, labelAction, revealable, icon, inset = tru
           {labelAction}
         </View>
       )}
-      <View>
+      {/* The icon and reveal button sit beside the input rather than over it: Android ignored
+          the input's padding, so overlaid icons covered the text. */}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: multiline ? "flex-start" : "center",
+          borderWidth: 1.5,
+          borderColor,
+          borderRadius: radius.button,
+          borderCurve: "continuous",
+          backgroundColor: colors.inputBackground,
+          boxShadow: focused ? "0 0 0 3px rgba(23,36,58,0.12)" : undefined,
+        }}
+      >
+        {icon && (
+          <Pressable onPress={() => inputRef.current?.focus()} accessible={false} style={{ paddingLeft: 16, paddingTop: multiline ? 14 : 0 }}>
+            <Icon name={icon} size={19} color={focused ? colors.accent : colors.tertiaryLabel} />
+          </Pressable>
+        )}
         <TextInput
+          ref={inputRef}
           placeholderTextColor={colors.tertiaryLabel}
           selectionColor={colors.accent}
           multiline={multiline}
@@ -161,36 +181,27 @@ export function Field({ label, error, labelAction, revealable, icon, inset = tru
           onBlur={(e) => (setFocused(false), onBlur?.(e))}
           style={[
             {
-              minHeight: multiline ? 110 : 52,
-              paddingHorizontal: 16,
-              paddingLeft: icon ? 46 : 16,
-              paddingRight: revealable ? 52 : 16,
+              flex: 1,
+              minWidth: 0,
+              // 52 tall overall, less the 1.5 border on each side.
+              minHeight: multiline ? 107 : 49,
+              paddingLeft: icon ? 11 : 16,
+              paddingRight: revealable ? 0 : 16,
               paddingVertical: multiline ? 14 : 0,
-              borderWidth: 1.5,
-              borderColor,
-              borderRadius: radius.button,
-              borderCurve: "continuous",
-              backgroundColor: colors.inputBackground,
               fontSize: 16,
               color: colors.label,
               textAlignVertical: multiline ? "top" : "center",
-              boxShadow: focused ? "0 0 0 3px rgba(23,36,58,0.12)" : undefined,
               outlineWidth: 0,
             },
             style,
           ]}
           {...props}
         />
-        {icon && (
-          <View style={{ position: "absolute", left: 16, top: 0, bottom: 0, justifyContent: "center", pointerEvents: "none" }}>
-            <Icon name={icon} size={19} color={focused ? colors.accent : colors.tertiaryLabel} />
-          </View>
-        )}
         {revealable && (
           <Pressable
             onPress={() => setRevealed((r) => !r)}
             accessibilityLabel={revealed ? "Hide password" : "Show password"}
-            style={{ position: "absolute", right: 4, top: 4, width: 44, height: 44, alignItems: "center", justifyContent: "center" }}
+            style={{ width: 44, height: 44, marginHorizontal: 4, alignItems: "center", justifyContent: "center" }}
           >
             <Icon name={revealed ? { sf: "eye.slash", md: "visibility_off" } : { sf: "eye", md: "visibility" }} size={20} color={colors.secondaryLabel} />
           </Pressable>
