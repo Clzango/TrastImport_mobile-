@@ -23,7 +23,13 @@ function proxyApi(req, res) {
     res.writeHead(upstreamRes.statusCode ?? 502, upstreamRes.headers);
     upstreamRes.pipe(res);
   });
+  // A dropped connection mid-response must not crash the dev server: only send a 502 if
+  // nothing has been written yet, otherwise just close the response.
   proxied.on("error", () => {
+    if (res.headersSent) {
+      res.destroy();
+      return;
+    }
     res.writeHead(502, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ detail: "Can't reach the API." }));
   });

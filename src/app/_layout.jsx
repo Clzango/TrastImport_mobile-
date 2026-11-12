@@ -87,8 +87,9 @@ function RootStack() {
       <Stack.Protected guard={signedIn}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="calculator/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="review-editor" options={{ ...modal, title: "Write a Review" }} />
-        <Stack.Screen name="claim/[id]" options={{ ...modal, title: "Claim Company" }} />
+        <Stack.Screen name="claim/[id]" options={{ ...modal, title: "Request Ownership" }} />
         <Stack.Screen name="edit-profile" options={{ ...modal, title: "Account Information" }} />
         <Stack.Screen name="edit-company/[id]" options={{ ...modal, title: "Edit Listing" }} />
         <Stack.Screen name="address-editor" options={{ ...modal, title: "Address" }} />

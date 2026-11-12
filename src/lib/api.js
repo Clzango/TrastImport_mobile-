@@ -308,12 +308,39 @@ export const api = {
       fromWireCompany(await request("PATCH", `/apps/companies/${id}/`, { json: data })),
     addAddress: async (id, data) =>
       fromWireAddress(await request("POST", `/apps/companies/${id}/addresses/`, { json: toWireAddress(data) })),
-    claim: async (id, message, document) =>
-      fromWireRequest(await request("POST", `/apps/companies/${id}/claim/`, { form: { message, document } })),
+    /**
+     * Request ownership of a listing or report it. `kind` is "OWNERSHIP" or "REPORT"; the other
+     * fields are contact_name, role, work_email, message and an optional document (PDF/JPG/PNG).
+     */
+    claim: async (id, { kind, contact_name, role, work_email, message, document }) =>
+      fromWireRequest(
+        await request("POST", `/apps/companies/${id}/claim/`, {
+          form: { kind, contact_name: contact_name || undefined, role: role || undefined, work_email: work_email || undefined, message, document: document ?? undefined },
+        }),
+      ),
     reviews: async (id, offset = 0) =>
       mapPage(await request("GET", `/apps/companies/${id}/reviews/`, { query: { limit: 20, offset } }), fromWireReview),
     createReview: async (id, rating, comment) =>
       fromWireReview(await request("POST", `/apps/companies/${id}/reviews/`, { json: { rating, comment } })),
+  },
+
+  // Shipping companies' departure board. Anyone signed in reads; the owner edits.
+  departures: {
+    /** Filters: company, destination (codes, comma-separated), method, open_only, date_from, date_to. */
+    list: (filters = {}, offset = 0) =>
+      request("GET", "/apps/departures/", { query: { ...filters, limit: 50, offset } }),
+    create: (companyId, data) => request("POST", `/apps/companies/${companyId}/departures/`, { json: data }),
+    remove: (id) => request("DELETE", `/apps/departures/${id}/`),
+  },
+
+  // Price per kg or per CBM for each destination and method, with transit days.
+  prices: {
+    /** Compares companies; pass { company } for one company's list. */
+    list: (filters = {}) => request("GET", "/apps/prices/", { query: { ...filters, limit: 100 } }),
+    // One company's price list, which its owner edits. One price per destination and method.
+    create: (companyId, data) => request("POST", `/apps/companies/${companyId}/prices/`, { json: data }),
+    update: (companyId, id, data) => request("PATCH", `/apps/companies/${companyId}/prices/${id}/`, { json: data }),
+    remove: (companyId, id) => request("DELETE", `/apps/companies/${companyId}/prices/${id}/`),
   },
 
   addresses: {
@@ -354,7 +381,13 @@ export const api = {
   },
 
   claims: {
+    /**
+     * The user's own requests, plus transfers scheduled for listings they own (those carry only
+     * id, company, company_name, kind, status, transfer_at, owner_* fields and dates).
+     */
     list: async () => mapPage(await request("GET", "/apps/claims/", { query: { limit: 100 } }), fromWireRequest),
+    /** The listing's owner disputes a scheduled transfer; the claim becomes DISPUTED. */
+    object: (id, response, document) => request("POST", `/apps/claims/${id}/object/`, { form: { response, document: document ?? undefined } }),
   },
 
   chat: {

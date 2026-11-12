@@ -12,6 +12,8 @@ export const addressTypeLabel = {
 
 export const statusLabel = {
   PENDING: "Under review",
+  SCHEDULED: "Transfer scheduled",
+  DISPUTED: "Disputed",
   APPROVED: "Approved",
   REJECTED: "Rejected",
 };

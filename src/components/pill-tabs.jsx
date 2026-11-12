@@ -4,7 +4,7 @@ import { haptic, Icon } from "@/components/ui";
 import { colors } from "@/lib/theme";
 
 /** Orange pill switcher from the design (All / Suppliers / Shipping, sort options). */
-export function PillTabs({ options, value, onChange, size = "regular", scroll }) {
+export function PillTabs({ options, value, onChange, size = "regular", scroll, activeColor = colors.accent, activeTextColor = colors.onAccent }) {
   const small = size === "small";
   const pills = options.map((o) => {
     const selected = o.value === value;
@@ -24,10 +24,10 @@ export function PillTabs({ options, value, onChange, size = "regular", scroll })
           borderRadius: 999,
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: selected ? colors.accent : pressed ? colors.segment : colors.fill,
+          backgroundColor: selected ? activeColor : pressed ? colors.segment : colors.fill,
         })}
       >
-        <Text numberOfLines={1} style={{ fontSize: small ? 13 : 14, fontWeight: selected ? "700" : "500", color: selected ? colors.onAccent : colors.bodyText }}>
+        <Text numberOfLines={1} style={{ fontSize: small ? 13 : 14, fontWeight: selected ? "700" : "500", color: selected ? activeTextColor : colors.bodyText }}>
           {o.label}
           {o.count !== undefined ? ` (${o.count})` : ""}
         </Text>

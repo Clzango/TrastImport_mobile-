@@ -22,7 +22,7 @@ export default function MyCompaniesScreen() {
         <EmptyState
           icon={{ sf: "building.2", md: "domain" }}
           title="No companies yet"
-          message="When an admin approves your claim, the company shows up here so you can edit it and reply to reviews."
+          message="Business accounts get their listing when the email is confirmed. To take over an existing listing, request ownership from its page."
         />
       ) : (
         <Section footer="Edit your listing, manage addresses and reply to reviews.">
@@ -41,7 +41,7 @@ export default function MyCompaniesScreen() {
         </Section>
       )}
       {companies.isSuccess && companies.data.length > 0 && (
-        <Text style={{ fontSize: 13, color: colors.secondaryLabel, textAlign: "center" }}>Only admins add new companies. To manage another one, claim it from its page.</Text>
+        <Text style={{ fontSize: 13, color: colors.secondaryLabel, textAlign: "center" }}>To manage another company, open its page and tap Report this listing or request ownership.</Text>
       )}
     </Screen>
   );

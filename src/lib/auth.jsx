@@ -3,6 +3,7 @@ import * as Linking from "expo-linking";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
+import { AppState } from "react-native";
 import { api, ApiError, isEmailNotConfirmed, onSessionExpired, setTokens } from "./api";
 import { loadTokens } from "./token-storage";
 
@@ -52,6 +53,16 @@ export function AuthProvider({ children }) {
       }
     })();
   }, [finishSignIn, signOut, queryClient]);
+
+  // Ownership changes on the server (an approved claim, a confirmed business sign-up), so
+  // re-read the account whenever the app comes back to the foreground.
+  useEffect(() => {
+    if (status !== "signedIn") return;
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") api.auth.me().then(setUser, () => {});
+    });
+    return () => sub.remove();
+  }, [status]);
 
   const value = useMemo(
     () => ({

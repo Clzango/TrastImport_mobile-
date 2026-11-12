@@ -3,6 +3,7 @@ import { router, Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { PhoneField } from "@/components/phone-field";
 import { Text } from "@/components/text";
 import { Banner, Button, Field, HeaderButton, Icon, Loading, haptic } from "@/components/ui";
 import { api } from "@/lib/api";
@@ -134,18 +135,7 @@ export default function EditProfileScreen() {
         </Card>
 
         <Card icon={{ sf: "phone.fill", md: "call" }} title="Contact" note="Private. Never shown on your profile or reviews.">
-          <Field
-            inset={false}
-            label="Phone"
-            icon={{ sf: "phone", md: "call" }}
-            value={form.phone}
-            onChangeText={set("phone")}
-            error={errors.field.phone}
-            keyboardType="phone-pad"
-            autoComplete="tel"
-            textContentType="telephoneNumber"
-            placeholder="+86 …"
-          />
+          <PhoneField label="Phone" value={form.phone} onChangeText={set("phone")} defaultCountryCode={customer.data.country_code} error={errors.field.phone} />
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 12, paddingVertical: 10, borderRadius: radius.cell, backgroundColor: colors.groupedBackground }}>
             <Icon name={{ sf: "lock.fill", md: "lock" }} size={14} color={colors.secondaryLabel} />
             <Text style={{ flex: 1, fontSize: 13, color: colors.secondaryLabel }}>Email: {user?.email} · change it in Settings.</Text>

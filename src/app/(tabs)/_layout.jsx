@@ -5,7 +5,7 @@ import { colors } from "@/lib/theme";
 export default function TabsLayout() {
   const unread = useUnreadCount();
   return (
-    <NativeTabs tintColor={colors.accent} minimizeBehavior="onScrollDown">
+    <NativeTabs tintColor={colors.forest} minimizeBehavior="onScrollDown">
       <NativeTabs.Trigger name="(explore)" disableTransparentOnScrollEdge>
         <NativeTabs.Trigger.Icon sf={{ default: "safari", selected: "safari.fill" }} md="explore" />
         <NativeTabs.Trigger.Label>Explore</NativeTabs.Trigger.Label>

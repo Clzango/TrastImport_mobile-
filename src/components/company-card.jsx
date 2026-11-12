@@ -4,23 +4,31 @@ import { Text } from "@/components/text";
 import { companyTypeLabel, formatRating, initials, pluralize, ratingValue, countryName } from "@/lib/format";
 import { useSaved } from "@/lib/saved";
 import { colors, logoTint, radius } from "@/lib/theme";
+import { homeCity, relativeDay, shipsTo } from "@/lib/shipping";
+import { MethodChip, TicketTear } from "./shipping-ui";
 import { Icon, IconButton, Pill, VerifiedBadge } from "./ui";
 
-export function CompanyLogo({ company, size = 52 }) {
+/**
+ * Square logo tile with the company's initials. `light` is the white tile used on navy headers.
+ */
+export function CompanyLogo({ company, size = 52, light }) {
   const tint = logoTint(company.id);
+  const ink = light ? colors.navy : tint.ink;
   return (
     <View
       style={{
         width: size,
         height: size,
-        borderRadius: size * 0.24,
+        borderRadius: size * 0.22,
         borderCurve: "continuous",
-        backgroundColor: tint.background,
+        backgroundColor: light ? colors.cell : tint.background,
         alignItems: "center",
         justifyContent: "center",
+        gap: size * 0.03,
       }}
     >
-      <Text style={{ fontSize: size * 0.33, fontWeight: "800", color: tint.ink }}>{initials(company.name)}</Text>
+      <Text style={{ fontSize: size * 0.34, lineHeight: size * 0.4, fontWeight: "700", color: ink }}>{initials(company.name)}</Text>
+      {size >= 40 && <View style={{ width: size * 0.38, height: Math.max(2, size * 0.05), borderRadius: 2, backgroundColor: light ? colors.accent : tint.bar }} />}
     </View>
   );
 }
@@ -114,7 +122,7 @@ export function CompanyCard({ company }) {
         borderRadius: radius.card,
         borderCurve: "continuous",
         padding: 14,
-        boxShadow: "0 1px 3px rgba(23,36,58,0.05)",
+        boxShadow: "0 7px 22px rgba(16,38,63,0.055)",
         opacity: pressed ? 0.85 : 1,
       })}
     >
@@ -141,6 +149,82 @@ export function CompanyCard({ company }) {
       </View>
       <View style={{ position: "absolute", top: 4, right: 4 }}>
         <FavoriteButton company={company} />
+      </View>
+    </Pressable>
+  );
+}
+
+/** Sea / Air from the cheapest prices the API reports, else from the route text. */
+export function companyMethods(company) {
+  const methods = [];
+  if (company.price_from_kg != null && company.price_from_kg !== "") methods.push("AIR");
+  if (company.price_from_cbm != null && company.price_from_cbm !== "") methods.push("SEA");
+  if (methods.length) return methods;
+  const text = `${company.routes_serviced ?? ""} ${(company.services ?? []).join?.(" ") ?? ""}`.toLowerCase();
+  if (/air|express/.test(text)) methods.push("AIR");
+  if (/sea|ocean|fcl|lcl/.test(text)) methods.push("SEA");
+  return methods;
+}
+
+/**
+ * Shipping company card for Explore's carousel: logo, rating, "Guangzhou ···· Brazil, Mexico",
+ * Air / Sea chips and the next departure under a ticket tear.
+ */
+export function ShippingCompanyCard({ company: c, width = 330 }) {
+  const rating = ratingValue(c.average_rating);
+  const from = homeCity(c) || "China";
+  const to = shipsTo(c).slice(0, 2).join(", ");
+  const methods = companyMethods(c);
+  const next = c.next_departure ? relativeDay(c.next_departure) : null;
+  return (
+    <Pressable
+      onPress={() => router.push(`/company/${c.id}`)}
+      accessibilityRole="link"
+      accessibilityLabel={`${c.name}, ${formatRating(rating)} stars${next ? `, next departure ${next}` : ""}`}
+      style={({ pressed }) => ({ width, backgroundColor: colors.cell, borderRadius: radius.card, borderCurve: "continuous", borderWidth: 1, borderColor: colors.border, padding: 16, gap: 14, opacity: pressed ? 0.9 : 1 })}
+    >
+      <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
+        <CompanyLogo company={c} size={52} />
+        <View style={{ flex: 1, gap: 3 }}>
+          <Text numberOfLines={1} style={{ fontSize: 18, fontWeight: "700", color: colors.label }}>
+            {c.name}
+          </Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+            <Text style={{ fontSize: 16, color: rating === null ? colors.starEmpty : colors.star }}>★</Text>
+            <Text style={{ fontSize: 16, fontWeight: "700", color: colors.label }}>{formatRating(rating)}</Text>
+            <Text style={{ fontSize: 16, color: colors.secondaryLabel }}>({pluralize(c.review_count, "review")})</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+        <Text numberOfLines={1} style={{ fontSize: 16, fontWeight: "500", color: colors.label }}>
+          {from}
+        </Text>
+        {to ? (
+          <>
+            <View style={{ flex: 1, height: 2, overflow: "hidden" }}>
+              <View style={{ height: 4, borderWidth: 2, borderColor: colors.border, borderStyle: "dotted" }} />
+            </View>
+            <Text numberOfLines={1} style={{ flexShrink: 1, fontSize: 16, fontWeight: "500", color: colors.label }}>
+              {to}
+            </Text>
+          </>
+        ) : null}
+      </View>
+
+      {methods.length > 0 && (
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          {methods.map((m) => (
+            <MethodChip key={m} method={m} />
+          ))}
+        </View>
+      )}
+
+      <TicketTear cut={colors.groupedBackground} inset={16} size={16} />
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <Text style={{ fontSize: 16, color: colors.secondaryLabel }}>Next departure</Text>
+        <Text style={{ fontSize: 19, fontWeight: "700", color: next ? colors.accent : colors.tertiaryLabel }}>{next ?? "Not scheduled"}</Text>
       </View>
     </Pressable>
   );

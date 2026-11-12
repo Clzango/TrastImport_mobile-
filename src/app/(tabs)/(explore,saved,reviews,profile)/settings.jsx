@@ -16,7 +16,7 @@ export default function SettingsScreen() {
   const claims = useQuery({ queryKey: keys.claims, queryFn: api.claims.list });
   const companies = useQuery({ queryKey: keys.myCompanies, queryFn: api.companies.mine });
   const latestVerification = verifications.data?.results[0];
-  const pendingClaims = claims.data?.results.filter((x) => x.status === "PENDING").length ?? 0;
+  const pendingClaims = claims.data?.results.filter((x) => ["PENDING", "SCHEDULED", "DISPUTED"].includes(x.status)).length ?? 0;
   const myCompanies = companies.data ?? [];
 
   const confirmSignOut = () => {
@@ -41,7 +41,7 @@ export default function SettingsScreen() {
           accessory={customer.data?.is_verified ? <Pill label="Approved" tone="success" /> : undefined}
           onPress={() => router.push("/verification")}
         />
-        <Row iconStyle="plain" icon={{ sf: "doc.text", md: "description" }} title="My Claims" value={pendingClaims ? `${pendingClaims} pending` : undefined} onPress={() => router.push("/claims")} />
+        <Row iconStyle="plain" icon={{ sf: "doc.text", md: "description" }} title="Ownership & Reports" value={pendingClaims ? `${pendingClaims} open` : undefined} onPress={() => router.push("/claims")} />
         {myCompanies.length > 0 && (
           <Row iconStyle="plain" icon={{ sf: "building.2", md: "domain" }} title="My Companies" value={String(myCompanies.length)} onPress={() => router.push("/my-companies")} />
         )}
