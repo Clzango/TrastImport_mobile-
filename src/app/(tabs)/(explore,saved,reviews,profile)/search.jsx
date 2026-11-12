@@ -65,6 +65,7 @@ export default function SearchScreen() {
   const [type, setType] = useState(TYPES.some((t) => t.value === params.type) ? params.type : "ALL");
   const [businessType, setBusinessType] = useState("");
   const [verifiedOnly, setVerifiedOnly] = useState(params.verified === "1");
+  const [customsOnly, setCustomsOnly] = useState(false);
   const [minRating, setMinRating] = useState(0);
   const [countries, setCountries] = useState([]);
   const [sheet, setSheet] = useState(null); // "country" | "business" | "rating" | "more"
@@ -89,15 +90,18 @@ export default function SearchScreen() {
       company_type: companyType,
       business_type: businessType || undefined,
       is_verified: verifiedOnly || undefined,
+      customs_included: (companyType !== "SUP" && customsOnly) || undefined,
       min_rating: minRating || undefined,
       country: countries.length ? countries.join(",") : undefined,
       ordering: sort || undefined,
     }),
-    [debouncedSearch, companyType, businessType, verifiedOnly, minRating, countries, sort],
+    [debouncedSearch, companyType, businessType, verifiedOnly, customsOnly, minRating, countries, sort],
   );
 
   const query = useInfiniteQuery({
-    queryKey: keys.companies(filters),
+    // Paged results are cached in a different shape from a single page, so they need their
+    // own key: Explore loads the same filters as one page ("See all" opens this screen).
+    queryKey: [...keys.companies(), "search", filters],
     queryFn: ({ pageParam }) => api.companies.list(filters, pageParam),
     initialPageParam: 0,
     getNextPageParam: (last, pages) => (last.next ? pages.length * PAGE_SIZE : undefined),
@@ -106,7 +110,7 @@ export default function SearchScreen() {
   const total = query.data?.pages[0]?.count ?? 0;
   const businessLabel = businessOptions.find((o) => o.value === businessType)?.label;
   const ratingLabel = RATINGS.find((r) => r.value === minRating)?.label;
-  const moreActive = verifiedOnly;
+  const moreActive = verifiedOnly || (companyType !== "SUP" && customsOnly);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.cell }}>
@@ -197,12 +201,14 @@ export default function SearchScreen() {
               More filters
             </Text>
             <Checkbox label="Verified companies only" value={verifiedOnly} onChange={setVerifiedOnly} />
+            {companyType !== "SUP" && <Checkbox label="Customs clearance included (shipping)" value={customsOnly} onChange={setCustomsOnly} />}
             <View style={{ flexDirection: "row", gap: 10 }}>
               <Button
                 title="Reset all"
                 variant="outline"
                 onPress={() => {
                   setVerifiedOnly(false);
+                  setCustomsOnly(false);
                   setBusinessType("");
                   setMinRating(0);
                   setCountries([]);

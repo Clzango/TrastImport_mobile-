@@ -35,10 +35,10 @@ export default function TabStackLayout({ segment }) {
       <Stack.Screen name="search" options={{ headerShown: false }} />
       <Stack.Screen name="my-reviews" options={{ title: "" }} />
       <Stack.Screen name="help" options={{ title: "" }} />
-      <Stack.Screen name="claims" options={{ title: "My Claims" }} />
+      <Stack.Screen name="claims" options={{ title: "Ownership & Reports" }} />
       <Stack.Screen name="verification" options={{ title: "Get Verified" }} />
       <Stack.Screen name="my-companies" options={{ title: "My Companies" }} />
-      <Stack.Screen name="manage/[id]" options={{ title: "Manage" }} />
+      <Stack.Screen name="manage/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="settings" options={{ title: "Settings" }} />
     </Stack>
   );

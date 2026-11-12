@@ -1,3 +1,4 @@
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -11,14 +12,20 @@ import { colors, radius } from "@/lib/theme";
 
 export const brandGradient = ["#7A2E03", "#C4520A", "#F07A26"];
 
-/** Globe mark plus "TrastImport", with "Import" in the accent colour. */
+/** The supplied TrastImport logo, scaled for welcome and authentication screens. */
 export function Wordmark({ size = 30, onDark }) {
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: size * 0.3 }} accessibilityRole="header" accessibilityLabel="TrastImport">
-      <Icon name={{ sf: "globe", md: "language" }} size={size * 1.15} color={onDark ? "#FFFFFF" : colors.accent} weight="semibold" />
-      <Text style={{ fontSize: size, lineHeight: size * 1.2, fontWeight: "800", letterSpacing: -0.6, color: onDark ? "#FFFFFF" : colors.label }}>
-        Trast<Text style={{ color: onDark ? "#FFD3B0" : colors.accent }}>Import</Text>
-      </Text>
+    <View
+      accessibilityRole="header"
+      accessibilityLabel="TrastImport — Find Suppliers. Connect. Ship Worldwide."
+      style={onDark ? { padding: 4, borderRadius: 13, backgroundColor: "#FFFFFF" } : undefined}
+    >
+      <Image
+        source={require("@/assets/images/trastimport-logo.png")}
+        contentFit="contain"
+        accessible={false}
+        style={{ width: size * 9.8, height: size * 2.42 }}
+      />
     </View>
   );
 }
@@ -26,15 +33,8 @@ export function Wordmark({ size = 30, onDark }) {
 /** Logo block at the top of Log in / Sign up / code screens. */
 export function AuthHeader() {
   return (
-    <View style={{ gap: 8 }}>
-      <View style={{ position: "absolute", right: -8, top: -14, flexDirection: "row", alignItems: "flex-start", gap: 6, opacity: 0.9, pointerEvents: "none" }}>
-        <Icon name={{ sf: "globe.asia.australia", md: "public" }} size={64} color={colors.accentTint} />
-        <View style={{ marginTop: -6, marginLeft: -26, transform: [{ rotate: "-14deg" }] }}>
-          <Icon name={{ sf: "airplane", md: "flight" }} size={26} color={colors.accent} />
-        </View>
-      </View>
-      <Wordmark size={30} />
-      <Text style={{ fontSize: 14, lineHeight: 20, color: colors.secondaryLabel }}>Connect Suppliers & Shipping{"\n"}Companies Worldwide</Text>
+    <View style={{ gap: 8, alignItems: "flex-start" }}>
+      <Wordmark size={28} />
     </View>
   );
 }

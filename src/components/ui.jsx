@@ -74,7 +74,7 @@ export function Section({ header, footer, children, style }) {
     <View style={[{ gap: 8 }, style]}>
       {header ? <SectionHeader>{header}</SectionHeader> : null}
       {items.length > 0 && (
-        <View style={{ backgroundColor: colors.cell, borderRadius: radius.card, borderCurve: "continuous", borderWidth: 1, borderColor: colors.border, overflow: "hidden" }}>
+        <View style={{ backgroundColor: colors.cell, borderRadius: radius.card, borderCurve: "continuous", borderWidth: 1, borderColor: colors.border, overflow: "hidden", boxShadow: "0 5px 18px rgba(16,38,63,0.035)" }}>
           {items.map((child, i) => (
             <Fragment key={i}>
               {i > 0 && <View style={{ height: 1, backgroundColor: colors.separator, marginHorizontal: 16 }} />}
@@ -142,7 +142,7 @@ export function Field({ label, error, labelAction, revealable, icon, inset = tru
   const [focused, setFocused] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const inputRef = useRef(null);
-  const borderColor = error ? colors.danger : focused ? colors.label : colors.inputBorder;
+  const borderColor = error ? colors.danger : focused ? colors.accent : colors.inputBorder;
 
   return (
     <View style={{ gap: 6, paddingHorizontal: inset ? 16 : 0, paddingVertical: inset ? 12 : 0 }}>
@@ -158,12 +158,12 @@ export function Field({ label, error, labelAction, revealable, icon, inset = tru
         style={{
           flexDirection: "row",
           alignItems: multiline ? "flex-start" : "center",
-          borderWidth: 1.5,
+          borderWidth: 1,
           borderColor,
           borderRadius: radius.button,
           borderCurve: "continuous",
           backgroundColor: colors.inputBackground,
-          boxShadow: focused ? "0 0 0 3px rgba(23,36,58,0.12)" : undefined,
+          boxShadow: focused ? "0 0 0 3px rgba(194,69,12,0.14)" : undefined,
         }}
       >
         {icon && (
@@ -173,6 +173,7 @@ export function Field({ label, error, labelAction, revealable, icon, inset = tru
         )}
         <TextInput
           ref={inputRef}
+          accessibilityLabel={label}
           placeholderTextColor={colors.tertiaryLabel}
           selectionColor={colors.accent}
           multiline={multiline}
@@ -192,6 +193,8 @@ export function Field({ label, error, labelAction, revealable, icon, inset = tru
               color: colors.label,
               textAlignVertical: multiline ? "top" : "center",
               outlineWidth: 0,
+              outlineStyle: "none",
+              outlineColor: "transparent",
             },
             style,
           ]}
@@ -253,7 +256,7 @@ export function Button({
           backgroundColor: filled ? (pressed ? colors.accentPressed : colors.accent) : outlined ? (pressed ? colors.fill : colors.cell) : "transparent",
           borderWidth: outlined ? 1.5 : 0,
           borderColor: variant === "destructive" ? colors.dangerSoft : accentOutline ? colors.accent : colors.inputBorder,
-          minHeight: 52,
+          minHeight: 54,
           borderRadius: radius.button,
           borderCurve: "continuous",
           alignItems: "center",

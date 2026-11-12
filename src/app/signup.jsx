@@ -168,6 +168,7 @@ export default function SignUpScreen() {
         />
         <Text style={{ textAlign: "center", fontSize: 13, lineHeight: 19, color: colors.tertiaryLabel }}>
           We'll email you a 6-digit code to confirm your address.
+          {business ? " Your company's listing is created once you confirm it, and you can manage it from Profile." : ""}
         </Text>
       </View>
 
