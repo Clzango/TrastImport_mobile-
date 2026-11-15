@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FlatList, Modal, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text, TextInput } from "@/components/text";
-import { countryFlag, countryName } from "@/lib/format";
+import { countryName } from "@/lib/format";
 import { colors, radius } from "@/lib/theme";
 import { haptic, Icon } from "./ui";
 
@@ -84,18 +84,18 @@ export function PhoneField({ label = "Phone", value, onChangeText, defaultCountr
   return (
     <View style={{ gap: 6 }}>
       {label ? <Text style={{ fontSize: 14, fontWeight: "600", color: colors.label }}>{label}</Text> : null}
-      <View style={{ flexDirection: "row", alignItems: "center", minHeight: 52, borderWidth: 1.5, borderColor: error ? colors.danger : focused ? colors.accent : colors.inputBorder, borderRadius: radius.button, borderCurve: "continuous", backgroundColor: colors.inputBackground, boxShadow: focused ? "0 0 0 3px rgba(194,69,12,0.14)" : undefined }}>
+      <View style={{ flexDirection: "row", alignItems: "center", minHeight: 52, borderWidth: 1.5, borderColor: error ? colors.danger : focused ? colors.ink : colors.inputBorder, borderRadius: radius.button, borderCurve: "continuous", backgroundColor: colors.inputBackground, boxShadow: focused ? "0 0 0 4px rgba(15,27,42,0.08)" : undefined, overflow: "hidden" }}>
         <Pressable
           onPress={() => { setSearch(""); setOpen(true); }}
           accessibilityRole="button"
           accessibilityLabel={`Country calling code, ${selected.label} +${selected.dial}`}
-          style={({ pressed }) => ({ minHeight: 49, flexDirection: "row", alignItems: "center", gap: 6, paddingLeft: 12, paddingRight: 9, opacity: pressed ? 0.7 : 1 })}
+          style={({ pressed }) => ({ alignSelf: "stretch", minHeight: 49, flexDirection: "row", alignItems: "center", gap: 5, paddingLeft: 14, paddingRight: 10, backgroundColor: pressed ? colors.steel : colors.groupedBackground })}
         >
-          <Text style={{ fontSize: 18 }}>{countryFlag(selected.iso)}</Text>
-          <Text style={{ fontSize: 15, fontWeight: "600", color: colors.label }}>+{selected.dial}</Text>
+          <Text style={{ fontSize: 16, fontWeight: "800", color: colors.ink }}>+{selected.dial}</Text>
+          <Text style={{ fontSize: 12, fontWeight: "700", color: colors.inkSecondary }}>{selected.iso}</Text>
           <Icon name={{ sf: "chevron.down", md: "expand_more" }} size={14} color={colors.secondaryLabel} />
         </Pressable>
-        <View style={{ width: 1, height: 26, backgroundColor: colors.border }} />
+        <View style={{ width: 1.5, alignSelf: "stretch", backgroundColor: colors.inputBorder }} />
         <TextInput
           value={number}
           onChangeText={updateNumber}
@@ -150,7 +150,7 @@ export function PhoneField({ label = "Phone", value, onChangeText, defaultCountr
                   accessibilityState={{ checked: item.iso === selected.iso }}
                   style={({ pressed }) => ({ minHeight: 54, flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 20, backgroundColor: pressed ? colors.fill : "transparent" })}
                 >
-                  <Text style={{ width: 28, fontSize: 21, textAlign: "center" }}>{countryFlag(item.iso)}</Text>
+                  <Text style={{ width: 30, fontSize: 12, fontWeight: "800", textAlign: "center", color: colors.inkSecondary }}>{item.iso}</Text>
                   <Text numberOfLines={1} style={{ flex: 1, fontSize: 15, fontWeight: item.iso === selected.iso ? "700" : "500", color: colors.label }}>{item.label}</Text>
                   <Text style={{ fontSize: 14, fontWeight: "600", color: colors.secondaryLabel }}>+{item.dial}</Text>
                   {item.iso === selected.iso ? <Icon name={{ sf: "checkmark", md: "check" }} size={17} color={colors.accent} weight="bold" /> : null}

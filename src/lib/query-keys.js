@@ -14,6 +14,8 @@ export const keys = {
   verifications: ["verifications"],
   departures: (filters) => (filters ? ["departures", filters] : ["departures"]),
   prices: (filters) => (filters ? ["prices", filters] : ["prices"]),
+  products: (filters) => (filters ? ["products", filters] : ["products"]),
+  product: (id) => ["product", id],
 };
 
 /** Everything that shows a shipping company's departures or prices. Call after the owner edits them. */

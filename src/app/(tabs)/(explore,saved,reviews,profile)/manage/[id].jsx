@@ -515,7 +515,7 @@ export default function ManageCompanyScreen() {
   const current = tab ?? (shipping ? "departures" : "listing");
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.groupedBackground }} behavior={process.env.EXPO_OS === "ios" ? "padding" : undefined}>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.groupedBackground }} behavior="padding">
       <StatusBar style="light" />
       <NavyHeader insetTop={insets.top} onBack={back} logo={<CompanyLogo company={c} size={64} light />} title="Manage your profile" subtitle={`${c.name}, company view`}>
         {tabs.length > 1 && (

@@ -1,0 +1,23 @@
+{
+  // Cloudflare Workers deployment of the web app (the static `expo export` in dist/).
+  // `npx wrangler deploy` runs the build below, then uploads dist/ and cloudflare/worker.js.
+  "name": "trastipmort-server",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-11-01",
+  "build": {
+    // See cloudflare/build.mjs: builds dist/ with the API behind this site's /api.
+    "command": "node cloudflare/build.mjs"
+  },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // /login serves login.html; /login.html redirects to /login.
+    "html_handling": "auto-trailing-slash"
+    // Requests that match no file fall through to the Worker (dynamic routes, /api, 404s).
+  },
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "API_UPSTREAM": "https://trastipmortapp-production.up.railway.app"
+  }
+}

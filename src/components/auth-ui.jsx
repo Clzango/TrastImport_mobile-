@@ -2,13 +2,60 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Pressable, View } from "react-native";
+import { KeyboardAvoidingView, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/components/text";
 import { haptic, Icon } from "@/components/ui";
+import { ContainerPanel } from "@/components/container-panel";
 import { colors, radius } from "@/lib/theme";
 
 // Pieces shared by the Welcome, Log in and Sign up screens.
+
+/**
+ * Log in / Sign up frame: the orange container panel carries the back button, logo, title and
+ * subtitle; the form sits on a white sheet that slides up over it. `footer` stays at the bottom.
+ */
+export function AuthLayout({ title, subtitle, children, footer }) {
+  const insets = useSafeAreaInsets();
+  return (
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.container }} behavior="padding">
+      <StatusBar style="light" />
+      <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive" style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
+        <ContainerPanel style={{ paddingTop: insets.top + 12, paddingHorizontal: 24, paddingBottom: 64, gap: 22 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 44 }}>
+            {router.canGoBack() ? (
+              <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} style={{ width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.18)" }}>
+                <Icon name={{ sf: "chevron.left", md: "arrow_back_ios_new" }} size={18} color={colors.onAccent} weight="semibold" />
+              </Pressable>
+            ) : (
+              <View style={{ width: 44 }} />
+            )}
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <View style={{ width: 30, height: 30, borderRadius: 9, backgroundColor: colors.cell, alignItems: "center", justifyContent: "center" }}>
+                <Icon name={{ sf: "sailboat.fill", md: "sailing" }} size={17} color={colors.container} />
+              </View>
+              <Text style={{ fontSize: 18, fontWeight: "800", letterSpacing: -0.3, color: colors.onAccent }}>TrastImport</Text>
+            </View>
+            <View style={{ width: 44 }} />
+          </View>
+          <View style={{ gap: 6, width: "100%", maxWidth: 560, alignSelf: "center" }}>
+            <Text accessibilityRole="header" style={{ fontSize: 32, lineHeight: 36, fontWeight: "800", letterSpacing: -1, color: colors.onAccent }}>
+              {title}
+            </Text>
+            {subtitle ? <Text style={{ fontSize: 16, lineHeight: 22, color: colors.onAccent }}>{subtitle}</Text> : null}
+          </View>
+        </ContainerPanel>
+        <View style={{ flexGrow: 1, marginTop: -32, borderTopLeftRadius: 32, borderTopRightRadius: 32, borderCurve: "continuous", backgroundColor: colors.cell, boxShadow: "0 -10px 30px rgba(60,15,0,0.18)" }}>
+          <View style={{ flexGrow: 1, width: "100%", maxWidth: 560, alignSelf: "center", paddingTop: 28, paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}>
+            {children}
+            <View style={{ flex: 1, minHeight: 24 }} />
+            {footer}
+          </View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+}
 
 export const brandGradient = ["#7A2E03", "#C4520A", "#F07A26"];
 

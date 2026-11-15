@@ -249,6 +249,11 @@ export const PAGE_SIZE = 10;
 
 export const api = {
   auth: {
+    /** Texts a 6-digit code to an E.164 number (sign-in and sign-up share it). */
+    phoneCode: (phone) => request("POST", "/auth/phone/code/", { json: { phone }, auth: false }),
+    /** Exchanges the SMS code for tokens; a new number gets a new account (names used only then). */
+    phoneLogin: (phone, code, first_name = "", last_name = "") =>
+      request("POST", "/auth/phone/login/", { json: { phone, code, first_name, last_name }, auth: false }),
     login: (email, password) =>
       request("POST", "/auth/jwt/create/", { json: { email, password }, auth: false }),
     signUp: (data) =>
@@ -292,6 +297,11 @@ export const api = {
       request("PATCH", "/apps/customers/me/", { json: data }),
   },
 
+  /** Suppliers' products: ?search, ?category (repeatable), ?company, ?ordering=price|-price|newest. */
+  products: {
+    list: (filters, offset = 0) => request("GET", "/apps/products/", { query: { ...filters, limit: PAGE_SIZE, offset } }),
+    get: (id) => request("GET", `/apps/products/${id}/`),
+  },
   companies: {
     list: async (filters, offset = 0) =>
       mapPage(await request("GET", "/apps/companies/", { query: { ...filters, limit: PAGE_SIZE, offset } }), fromWireCompany),

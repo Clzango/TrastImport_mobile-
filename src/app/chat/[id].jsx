@@ -5,7 +5,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, Pressable, ScrollView, View } from "react-native";
+import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { companyTags } from "@/components/company-card";
 import { OptionsSheet } from "@/components/select-field";
@@ -98,7 +98,7 @@ function MessageRow({ message, mine, read, pending, failed, onRetry }) {
             opacity: pending ? 0.7 : 1,
           }}
         >
-          <Text selectable style={{ fontSize: 18, lineHeight: 26, color: mine ? colors.onNavy : colors.label }}>
+          <Text selectable style={{ fontSize: 16, lineHeight: 22, color: mine ? colors.onNavy : colors.label }}>
             {message.body}
           </Text>
         </Pressable>
@@ -127,20 +127,20 @@ function ContextStrip({ icon, title, subtitle, action, onPress }) {
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 14, paddingHorizontal: 16, paddingVertical: 14, backgroundColor: pressed ? colors.fill : colors.cell, borderBottomWidth: 1, borderBottomColor: colors.border })}
+      style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingVertical: 10, backgroundColor: pressed ? colors.fill : colors.cell, borderBottomWidth: 1, borderBottomColor: colors.border })}
     >
-      <View style={{ width: 56, height: 56, borderRadius: 14, backgroundColor: icon.bg, alignItems: "center", justifyContent: "center" }}>
-        <Icon name={icon.name} size={26} color={icon.fg} />
+      <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: icon.bg, alignItems: "center", justifyContent: "center" }}>
+        <Icon name={icon.name} size={20} color={icon.fg} />
       </View>
       <View style={{ flex: 1, gap: 2 }}>
-        <Text numberOfLines={1} style={{ fontSize: 18, fontWeight: "700", color: colors.label }}>
+        <Text numberOfLines={1} style={{ fontSize: 15, fontWeight: "700", color: colors.label }}>
           {title}
         </Text>
-        <Text numberOfLines={1} style={{ fontSize: 15, color: colors.secondaryLabel }}>
+        <Text numberOfLines={1} style={{ fontSize: 13, color: colors.secondaryLabel }}>
           {subtitle}
         </Text>
       </View>
-      <Text style={{ fontSize: 18, fontWeight: "600", color: colors.accent }}>{action}</Text>
+      <Text style={{ fontSize: 14, fontWeight: "700", color: colors.container }}>{action}</Text>
     </Pressable>
   );
 }
@@ -158,8 +158,8 @@ function DepartureSuggestion({ departure: d }) {
         <Icon name={METHODS[d.method]?.icon} size={24} color={colors.accent} />
       </View>
       <View style={{ flex: 1, gap: 2 }}>
-        <Text style={{ fontSize: 15, color: colors.secondaryLabel }}>Next departure to {d.destination}</Text>
-        <Text numberOfLines={2} style={{ fontSize: 17, fontWeight: "700", color: colors.label }}>
+        <Text style={{ fontSize: 13, color: colors.secondaryLabel }}>Next departure to {d.destination}</Text>
+        <Text numberOfLines={2} style={{ fontSize: 15, fontWeight: "700", color: colors.label }}>
           {d.company_info?.name} · {air ? "flight" : "ship"} {relativeDay(d.departure_date).toLowerCase()}
         </Text>
       </View>
@@ -181,6 +181,16 @@ export default function ChatScreen() {
   const [noOlder, setNoOlder] = useState(false);
   const [menu, setMenu] = useState(false);
   const [notice, setNotice] = useState(null);
+  // While typing, the composer sits right on the keyboard and the extras above it step aside (as in WhatsApp).
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  useEffect(() => {
+    const show = Keyboard.addListener(process.env.EXPO_OS === "ios" ? "keyboardWillShow" : "keyboardDidShow", () => setKeyboardOpen(true));
+    const hide = Keyboard.addListener(process.env.EXPO_OS === "ios" ? "keyboardWillHide" : "keyboardDidHide", () => setKeyboardOpen(false));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
   const input = useRef(null);
   const lastReadId = useRef(0);
 
@@ -356,23 +366,23 @@ export default function ChatScreen() {
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.groupedBackground }} behavior={process.env.EXPO_OS === "ios" ? "padding" : undefined}>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.groupedBackground }} behavior="padding">
       <StatusBar style="light" />
       {/* Header */}
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingTop: insets.top + 12, paddingBottom: 14, paddingHorizontal: 12, backgroundColor: colors.navy }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingTop: insets.top + 8, paddingBottom: 10, paddingHorizontal: 12, backgroundColor: colors.navy }}>
         <RoundButton icon={{ sf: "arrow.left", md: "arrow_back" }} label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace("/messages"))} />
         <Pressable onPress={() => buyer && router.push(`/company/${companyId}`)} disabled={!buyer} accessibilityRole={buyer ? "link" : undefined} style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 10 }}>
-          <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.infoSoft, alignItems: "center", justifyContent: "center" }}>
-            <Text style={{ fontSize: 19, fontWeight: "700", color: colors.navy }}>{initials(title)}</Text>
+          <View style={{ width: 40, height: 40, borderRadius: 13, backgroundColor: colors.cell, alignItems: "center", justifyContent: "center" }}>
+            <Text style={{ fontSize: 15, fontWeight: "800", color: colors.ink }}>{initials(title)}</Text>
           </View>
           <View style={{ flex: 1, gap: 2 }}>
-            <Text numberOfLines={1} accessibilityRole="header" style={{ fontSize: 21, fontWeight: "700", color: colors.onNavy }}>
+            <Text numberOfLines={1} accessibilityRole="header" style={{ fontSize: 17, fontWeight: "800", color: colors.onNavy }}>
               {title}
             </Text>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
-              {verified && !otherTyping ? <Icon name={{ sf: "checkmark.shield", md: "verified_user" }} size={15} color={colors.onNavySuccess} /> : null}
+              {verified && !otherTyping ? <Icon name={{ sf: "checkmark.shield", md: "verified_user" }} size={13} color={colors.onNavySuccess} /> : null}
               {isOnline && !verified && !otherTyping ? <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.online }} /> : null}
-              <Text numberOfLines={1} style={{ flexShrink: 1, fontSize: 16, color: subtitleColor }}>
+              <Text numberOfLines={1} style={{ flexShrink: 1, fontSize: 13, color: subtitleColor }}>
                 {subtitle}
               </Text>
             </View>
@@ -383,7 +393,7 @@ export default function ChatScreen() {
         </Pressable>
       </View>
 
-      {strip}
+      {!keyboardOpen && strip}
 
       {/* Messages */}
       {messages.isPending ? (
@@ -407,7 +417,7 @@ export default function ChatScreen() {
           ListEmptyComponent={
             <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 32, gap: 8, transform: [{ scaleY: -1 }] }}>
               <Icon name={{ sf: "bubble.left.and.bubble.right", md: "forum" }} size={32} color={colors.tertiaryLabel} />
-              <Text style={{ fontSize: 17, textAlign: "center", color: colors.secondaryLabel }}>
+              <Text style={{ fontSize: 15, textAlign: "center", color: colors.secondaryLabel }}>
                 Say hello to {title}. Ask about {shippingChat ? "routes, prices and the next departure" : "products, prices, MOQ or shipping"}.
               </Text>
             </View>
@@ -431,56 +441,58 @@ export default function ChatScreen() {
       ) : null}
 
       {/* Quick replies + composer */}
-      <View style={{ backgroundColor: colors.cell, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 14, paddingBottom: Math.max(insets.bottom, 12), gap: 14 }}>
-        {!draft && (
-          <ScrollView horizontal keyboardShouldPersistTaps="always" showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}>
+      <View style={{ paddingTop: 6, paddingBottom: keyboardOpen ? 8 : Math.max(insets.bottom, 10), gap: 10 }}>
+        {!draft && !keyboardOpen && (
+          <ScrollView horizontal keyboardShouldPersistTaps="always" showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 12, gap: 8 }}>
             {quickReplies.map((q) => (
               <Pressable
                 key={q.text}
                 onPress={() => (q.draft ? fillTemplate(q.draft) : queue(q.text))}
                 accessibilityRole="button"
                 accessibilityHint={q.draft ? "Fills in a message to complete" : "Sends this message"}
-                style={({ pressed }) => ({ height: 48, paddingHorizontal: 18, borderRadius: 999, borderWidth: 1.5, borderColor: colors.border, justifyContent: "center", backgroundColor: pressed ? colors.fill : colors.cell })}
+                style={({ pressed }) => ({ height: 38, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, justifyContent: "center", backgroundColor: pressed ? colors.fill : colors.cell })}
               >
-                <Text style={{ fontSize: 17, color: colors.bodyText }}>{q.text}</Text>
+                <Text style={{ fontSize: 14, color: colors.bodyText }}>{q.text}</Text>
               </Pressable>
             ))}
           </ScrollView>
         )}
-        <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 12, paddingHorizontal: 16 }}>
-          <Pressable onPress={attach} accessibilityRole="button" accessibilityLabel="Attach a file" style={({ pressed }) => ({ width: 56, height: 56, borderRadius: 28, alignItems: "center", justifyContent: "center", backgroundColor: pressed ? colors.segment : colors.fill })}>
-            <Icon name={{ sf: "paperclip", md: "attach_file" }} size={24} color={colors.secondaryLabel} />
-          </Pressable>
-          <TextInput
-            ref={input}
-            value={draft}
-            onChangeText={(text) => {
-              setDraft(text);
-              if (text) sendTyping(id);
-            }}
-            placeholder="Write a message"
-            placeholderTextColor={colors.tertiaryLabel}
-            selectionColor={colors.accent}
-            multiline
-            maxLength={4000}
-            accessibilityLabel="Message"
-            onKeyPress={(e) => {
-              // Enter sends on web; Shift+Enter adds a line.
-              if (process.env.EXPO_OS === "web" && e.nativeEvent.key === "Enter" && !e.nativeEvent.shiftKey) {
-                e.preventDefault();
-                submit();
-              }
-            }}
-            style={{ flex: 1, minHeight: 56, maxHeight: 140, paddingHorizontal: 22, paddingTop: 16, paddingBottom: 16, borderRadius: 28, backgroundColor: colors.fill, fontSize: 18, color: colors.label, outlineWidth: 0 }}
-          />
+        <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 8, paddingHorizontal: 8 }}>
+          <View style={{ flex: 1, flexDirection: "row", alignItems: "flex-end", minHeight: 48, borderRadius: 24, borderCurve: "continuous", backgroundColor: colors.cell, boxShadow: "0 1px 3px rgba(15,27,42,0.12)" }}>
+            <TextInput
+              ref={input}
+              value={draft}
+              onChangeText={(text) => {
+                setDraft(text);
+                if (text) sendTyping(id);
+              }}
+              placeholder="Message"
+              placeholderTextColor={colors.tertiaryLabel}
+              selectionColor={colors.container}
+              multiline
+              maxLength={4000}
+              accessibilityLabel="Message"
+              onKeyPress={(e) => {
+                // Enter sends on web; Shift+Enter adds a line.
+                if (process.env.EXPO_OS === "web" && e.nativeEvent.key === "Enter" && !e.nativeEvent.shiftKey) {
+                  e.preventDefault();
+                  submit();
+                }
+              }}
+              style={{ flex: 1, minHeight: 48, maxHeight: 130, paddingLeft: 18, paddingRight: 6, paddingTop: 13, paddingBottom: 13, fontSize: 16, color: colors.label, outlineWidth: 0 }}
+            />
+            <Pressable onPress={attach} accessibilityRole="button" accessibilityLabel="Attach a file" hitSlop={4} style={({ pressed }) => ({ width: 44, height: 48, alignItems: "center", justifyContent: "center", opacity: pressed ? 0.5 : 1 })}>
+              <Icon name={{ sf: "paperclip", md: "attach_file" }} size={22} color={colors.inkSecondary} />
+            </Pressable>
+          </View>
           <Pressable
             onPress={submit}
             disabled={!draft.trim()}
             accessibilityRole="button"
             accessibilityLabel="Send"
-            style={({ pressed }) => ({ width: 56, height: 56, borderRadius: 28, backgroundColor: pressed ? colors.accentPressed : colors.accent, opacity: draft.trim() ? 1 : 0.5, alignItems: "center", justifyContent: "center" })}
+            style={({ pressed }) => ({ width: 48, height: 48, borderRadius: 24, backgroundColor: pressed ? colors.accentPressed : colors.container, opacity: draft.trim() ? 1 : 0.55, alignItems: "center", justifyContent: "center" })}
           >
-            <Icon name={{ sf: "paperplane", md: "send" }} size={24} color={colors.onAccent} />
+            <Icon name={{ sf: "paperplane.fill", md: "send" }} size={20} color={colors.onAccent} />
           </Pressable>
         </View>
       </View>

@@ -19,7 +19,7 @@ export function CompanyLogo({ company, size = 52, light }) {
       style={{
         width: size,
         height: size,
-        borderRadius: size * 0.22,
+        borderRadius: size * 0.3,
         borderCurve: "continuous",
         backgroundColor: light ? colors.cell : tint.background,
         alignItems: "center",

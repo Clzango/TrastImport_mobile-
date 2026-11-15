@@ -68,7 +68,7 @@ export default function EditProfileScreen() {
   const save = () => dirty && mutation.mutate();
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.groupedBackground }} behavior={process.env.EXPO_OS === "ios" ? "padding" : undefined}>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.groupedBackground }} behavior="padding">
       <Stack.Screen
         options={{
           title: "Account Information",

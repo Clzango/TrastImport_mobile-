@@ -7,7 +7,7 @@ import { colors, fonts } from "@/lib/theme";
 // Web gets the bottom navigation from the design instead.
 const tab = (title, icon) => ({
   title,
-  tabBarIcon: ({ color }) => <Icon name={icon} size={24} color={color} />,
+  tabBarIcon: ({ color, focused }) => <Icon name={focused && icon.sfOn ? { ...icon, sf: icon.sfOn } : icon} size={27} color={color} />,
 });
 
 export default function TabsLayout() {
@@ -16,17 +16,18 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.forest,
+        tabBarActiveTintColor: colors.ink,
         tabBarInactiveTintColor: colors.secondaryLabel,
-        tabBarStyle: { backgroundColor: colors.cell, borderTopWidth: 0, borderTopLeftRadius: 20, borderTopRightRadius: 20, height: 70, paddingTop: 7, boxShadow: "0 -5px 22px rgba(16,38,63,0.07)" },
+        tabBarShowLabel: false,
+        tabBarStyle: { position: "absolute", left: 14, right: 14, bottom: 22, height: 64, paddingTop: 10, borderRadius: 32, borderTopWidth: 0, backgroundColor: "rgba(255,255,255,0.72)", backdropFilter: "blur(24px) saturate(180%)", boxShadow: "0 10px 34px rgba(15,27,42,0.16), 0 1px 3px rgba(15,27,42,0.08)" },
         tabBarLabelStyle: { fontSize: 12, fontFamily: fonts["600"] },
       }}
     >
-      <Tabs.Screen name="(explore)" options={tab("Explore", { sf: "safari", md: "explore" })} />
-      <Tabs.Screen name="(saved)" options={tab("Favorites", { sf: "heart", md: "favorite" })} />
+      <Tabs.Screen name="(explore)" options={tab("Explore", { sf: "house", sfOn: "house.fill", md: "home" })} />
+      <Tabs.Screen name="(saved)" options={tab("Favorites", { sf: "heart", sfOn: "heart.fill", md: "favorite" })} />
       {/* The (reviews) group holds the Messages tab; group names don't appear in URLs. */}
-      <Tabs.Screen name="(reviews)" options={{ ...tab("Messages", { sf: "bubble.left.and.bubble.right", md: "forum" }), tabBarBadge: unread || undefined }} />
-      <Tabs.Screen name="(profile)" options={tab("Profile", { sf: "person", md: "person" })} />
+      <Tabs.Screen name="(reviews)" options={{ ...tab("Messages", { sf: "ellipsis.message", sfOn: "ellipsis.message.fill", md: "chat" }), tabBarBadge: unread || undefined }} />
+      <Tabs.Screen name="(profile)" options={tab("Profile", { sf: "person.crop.circle", sfOn: "person.crop.circle.fill", md: "account_circle" })} />
     </Tabs>
   );
 }

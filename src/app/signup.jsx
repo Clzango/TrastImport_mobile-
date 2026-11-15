@@ -1,9 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
-import { KeyboardAvoidingView, ScrollView, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AuthHeader } from "@/components/auth-ui";
+import { View } from "react-native";
+import { AuthLayout } from "@/components/auth-ui";
+import { MethodSwitch, PhoneStart } from "@/components/phone-sign-in";
+import { SocialSignIn } from "@/components/social-sign-in";
 import { PillTabs } from "@/components/pill-tabs";
 import { SelectField } from "@/components/select-field";
 import { Text } from "@/components/text";
@@ -13,8 +14,8 @@ import { formErrors } from "@/lib/form-errors";
 import { colors } from "@/lib/theme";
 
 const ACCOUNT_TYPES = [
-  { value: "BUSINESS", label: "Business Account" },
-  { value: "PERSONAL", label: "Personal Account" },
+  { value: "BUSINESS", label: "I sell or ship" },
+  { value: "PERSONAL", label: "I'm importing" },
 ];
 
 // Business accounts are for companies listed on TrastImport; SUP and LOG match the API's
@@ -33,9 +34,9 @@ function splitName(full) {
 }
 
 export default function SignUpScreen() {
-  const insets = useSafeAreaInsets();
   const { signUp } = useAuth();
   const [accountType, setAccountType] = useState("BUSINESS");
+  const [method, setMethod] = useState("email");
   const [fullName, setFullName] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [businessType, setBusinessType] = useState(null);
@@ -65,23 +66,24 @@ export default function SignUpScreen() {
   const ready = fullName.trim() && email && password.length >= 8 && confirm === password && (!business || (companyName.trim() && businessType));
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.cell }} behavior={process.env.EXPO_OS === "ios" ? "padding" : undefined}>
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="interactive"
-        style={{ flex: 1, backgroundColor: colors.cell }}
-        contentContainerStyle={{ flexGrow: 1, width: "100%", maxWidth: 560, alignSelf: "center", paddingTop: insets.top + 32, paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}
-      >
-        <AuthHeader />
-
-      <View style={{ marginTop: 32, gap: 8 }}>
-        <Text accessibilityRole="header" style={{ fontSize: 28, lineHeight: 32, fontWeight: "800", letterSpacing: -0.5, color: colors.label }}>
-          Create Your Account
+    <AuthLayout
+      title="Create your account"
+      subtitle="It takes about a minute."
+      footer={
+        <Text style={{ textAlign: "center", fontSize: 15, color: colors.secondaryLabel }}>
+          Already have an account?{" "}
+          <Text onPress={() => router.replace("/login")} style={{ fontWeight: "800", color: colors.container }} accessibilityRole="link">
+            Log in
+          </Text>
         </Text>
-        <Text style={{ fontSize: 15, lineHeight: 22, color: colors.secondaryLabel }}>Join TrastImport and connect with trusted suppliers and shipping companies worldwide.</Text>
-      </View>
-
-      <View style={{ gap: 16, marginTop: 22 }}>
+      }
+    >
+      <MethodSwitch value={method} onChange={setMethod} />
+      <View style={{ height: 18 }} />
+      {method === "phone" ? (
+        <PhoneStart askName />
+      ) : (
+      <View style={{ gap: 16 }}>
         <PillTabs options={ACCOUNT_TYPES} value={accountType} onChange={setAccountType} />
         <Banner message={errors.banner} />
         {business && (
@@ -159,28 +161,23 @@ export default function SignUpScreen() {
           />
         )}
         <Button
-          title="Create Account"
-          trailingIcon={{ sf: "arrow.right", md: "arrow_forward" }}
+          title="Create account"
+          variant="ink"
           onPress={() => mutation.mutate()}
           loading={mutation.isPending}
           disabled={!ready}
-          style={{ marginTop: 6, minHeight: 54, borderRadius: 999 }}
+          style={{ marginTop: 6, minHeight: 56, boxShadow: "0 8px 20px rgba(15,27,42,0.22)" }}
         />
         <Text style={{ textAlign: "center", fontSize: 13, lineHeight: 19, color: colors.tertiaryLabel }}>
           We'll email you a 6-digit code to confirm your address.
           {business ? " Your company's listing is created once you confirm it, and you can manage it from Profile." : ""}
         </Text>
       </View>
+      )}
 
-      <View style={{ flex: 1, minHeight: 28 }} />
-
-      <Text style={{ textAlign: "center", fontSize: 15, color: colors.secondaryLabel }}>
-        Already have an account?{" "}
-        <Text onPress={() => router.replace("/login")} style={{ fontWeight: "700", color: colors.accent }} accessibilityRole="link">
-          Log In
-        </Text>
-      </Text>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <View style={{ marginTop: 24 }}>
+        <SocialSignIn label="or sign up with" />
+      </View>
+    </AuthLayout>
   );
 }

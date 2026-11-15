@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Wordmark } from "@/components/auth-ui";
+import { ContainerPanel } from "@/components/container-panel";
 import { Text, TextInput } from "@/components/text";
 import { Banner, Button, haptic, Icon } from "@/components/ui";
 import { api, errorMessage } from "@/lib/api";
@@ -79,12 +79,15 @@ function CodeInput({ value, onChange, onComplete, error, disabled }) {
  */
 export default function VerifyScreen() {
   const params = useLocalSearchParams();
-  const mode = params.mode === "signup" ? "signup" : "login";
+  const mode = params.mode === "signup" ? "signup" : params.mode === "phone" ? "phone" : "login";
+  const phone = typeof params.phone === "string" ? params.phone : "";
+  const firstName = typeof params.firstName === "string" ? params.firstName : "";
+  const lastName = typeof params.lastName === "string" ? params.lastName : "";
   const email = typeof params.email === "string" ? params.email : "";
   const ticket = typeof params.ticket === "string" ? params.ticket : "";
   const remember = params.remember !== "0";
   const insets = useSafeAreaInsets();
-  const { verifyLoginCode, activateWithCode } = useAuth();
+  const { verifyLoginCode, activateWithCode, signInWithPhone } = useAuth();
   const [code, setCode] = useState("");
   const [wait, setWait] = useState(RESEND_AFTER);
 
@@ -96,7 +99,8 @@ export default function VerifyScreen() {
 
   // Success swaps this screen for the app (see the root layout).
   const verify = useMutation({
-    mutationFn: (value) => (mode === "signup" ? activateWithCode(email, value) : verifyLoginCode(ticket, value, remember)),
+    mutationFn: (value) =>
+      mode === "phone" ? signInWithPhone(phone, value, firstName, lastName) : mode === "signup" ? activateWithCode(email, value) : verifyLoginCode(ticket, value, remember),
     onSuccess: () => haptic("success"),
     onError: () => {
       haptic("warning");
@@ -104,7 +108,7 @@ export default function VerifyScreen() {
     },
   });
   const resend = useMutation({
-    mutationFn: () => (mode === "signup" ? api.auth.resendActivation(email) : api.auth.resendLoginCode(ticket)),
+    mutationFn: () => (mode === "phone" ? api.auth.phoneCode(phone) : mode === "signup" ? api.auth.resendActivation(email) : api.auth.resendLoginCode(ticket)),
     onSuccess: () => {
       setWait(RESEND_AFTER);
       verify.reset();
@@ -124,22 +128,21 @@ export default function VerifyScreen() {
         accessibilityRole="button"
         accessibilityLabel="Back"
         hitSlop={8}
-        style={{ width: 44, height: 44, justifyContent: "center" }}
+        style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: pressed ? colors.steelBorder : colors.steel })}
       >
-        <Icon name={{ sf: "arrow.left", md: "arrow_back" }} size={22} color={colors.label} />
+        <Icon name={{ sf: "chevron.left", md: "arrow_back_ios_new" }} size={18} color={colors.ink} weight="semibold" />
       </Pressable>
 
-      <View style={{ marginTop: 12, gap: 10 }}>
-        <Wordmark size={24} />
-        <View style={{ marginTop: 24, width: 64, height: 64, borderRadius: 20, backgroundColor: colors.accentSoft, alignItems: "center", justifyContent: "center" }}>
-          <Icon name={{ sf: "envelope.badge.shield.half.filled", md: "mark_email_unread" }} size={30} color={colors.accent} />
-        </View>
-        <Text accessibilityRole="header" style={{ marginTop: 8, fontSize: 28, lineHeight: 32, fontWeight: "800", letterSpacing: -0.5, color: colors.label }}>
-          {mode === "signup" ? "Confirm your email" : "Enter your code"}
+      <View style={{ marginTop: 24, gap: 10 }}>
+        <ContainerPanel style={{ width: 68, height: 68, borderRadius: 22, alignItems: "center", justifyContent: "center" }}>
+          <Icon name={mode === "phone" ? { sf: "message.fill", md: "sms" } : { sf: "envelope.fill", md: "mark_email_unread" }} size={30} color={colors.onAccent} />
+        </ContainerPanel>
+        <Text accessibilityRole="header" style={{ marginTop: 14, fontSize: 32, lineHeight: 35, fontWeight: "800", letterSpacing: -1.1, color: colors.ink }}>
+          {mode === "phone" ? "Check your phone" : mode === "signup" ? "Confirm your email" : "Enter your code"}
         </Text>
         <Text style={{ fontSize: 15, lineHeight: 22, color: colors.secondaryLabel }}>
-          We sent a {LENGTH}-digit code to <Text style={{ fontWeight: "700", color: colors.label }}>{email || "your email"}</Text>.{" "}
-          {mode === "signup" ? "Enter it to activate your account." : "Enter it to finish logging in."}
+          We sent a {LENGTH}-digit code {mode === "phone" ? "by text message " : ""}to <Text style={{ fontWeight: "700", color: colors.label }}>{(mode === "phone" ? phone : email) || "you"}</Text>.{" "}
+          {mode === "signup" ? "Enter it to activate your account." : mode === "phone" ? "Enter it to continue." : "Enter it to finish logging in."}
         </Text>
       </View>
 
@@ -148,25 +151,30 @@ export default function VerifyScreen() {
         {resend.isSuccess && !error && <Banner tone="success" message="We sent you a new code." />}
         <CodeInput value={code} onChange={setCode} onComplete={(value) => verify.mutate(value)} error={!!verify.error} disabled={verify.isPending} />
         <Button
-          title={mode === "signup" ? "Verify & Continue" : "Verify & Log In"}
-          trailingIcon={{ sf: "arrow.right", md: "arrow_forward" }}
+          title={mode === "login" ? "Verify and log in" : "Verify and continue"}
+          variant="ink"
           onPress={() => verify.mutate(code)}
           loading={verify.isPending}
           disabled={code.length < LENGTH}
-          style={{ marginTop: 8, minHeight: 54, borderRadius: 999 }}
+          style={{ marginTop: 8, minHeight: 56 }}
         />
         <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 6, minHeight: 44 }}>
           <Text style={{ fontSize: 15, color: colors.secondaryLabel }}>Didn't get it?</Text>
           {wait > 0 ? (
             <Text style={{ fontSize: 15, color: colors.tertiaryLabel, fontVariant: ["tabular-nums"] }}>Resend in {wait}s</Text>
           ) : (
-            <Text onPress={() => resend.mutate()} accessibilityRole="button" style={{ fontSize: 15, fontWeight: "700", color: resend.isPending ? colors.tertiaryLabel : colors.accent }}>
+            <Text onPress={() => resend.mutate()} accessibilityRole="button" style={{ fontSize: 15, fontWeight: "700", color: resend.isPending ? colors.tertiaryLabel : colors.container }}>
               {resend.isPending ? "Sending…" : "Resend code"}
             </Text>
           )}
         </View>
+        {mode === "phone" && (
+          <Pressable onPress={() => router.back()} accessibilityRole="link" hitSlop={8} style={{ alignSelf: "center", minHeight: 44, justifyContent: "center", marginTop: -12 }}>
+            <Text style={{ fontSize: 15, fontWeight: "700", color: colors.container }}>Change number</Text>
+          </Pressable>
+        )}
         <Text style={{ textAlign: "center", fontSize: 13, lineHeight: 19, color: colors.tertiaryLabel }}>
-          Check your spam folder too. The code expires after 10 minutes.
+          {mode === "phone" ? "Texts can take a minute to arrive. The code expires after 10 minutes." : "Check your spam folder too. The code expires after 10 minutes."}
         </Text>
       </View>
     </ScrollView>

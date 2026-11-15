@@ -142,7 +142,7 @@ export function Field({ label, error, labelAction, revealable, icon, inset = tru
   const [focused, setFocused] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const inputRef = useRef(null);
-  const borderColor = error ? colors.danger : focused ? colors.accent : colors.inputBorder;
+  const borderColor = error ? colors.danger : focused ? colors.ink : colors.inputBorder;
 
   return (
     <View style={{ gap: 6, paddingHorizontal: inset ? 16 : 0, paddingVertical: inset ? 12 : 0 }}>
@@ -158,17 +158,17 @@ export function Field({ label, error, labelAction, revealable, icon, inset = tru
         style={{
           flexDirection: "row",
           alignItems: multiline ? "flex-start" : "center",
-          borderWidth: 1,
+          borderWidth: 1.5,
           borderColor,
           borderRadius: radius.button,
           borderCurve: "continuous",
           backgroundColor: colors.inputBackground,
-          boxShadow: focused ? "0 0 0 3px rgba(194,69,12,0.14)" : undefined,
+          boxShadow: focused ? "0 0 0 4px rgba(15,27,42,0.08)" : undefined,
         }}
       >
         {icon && (
           <Pressable onPress={() => inputRef.current?.focus()} accessible={false} style={{ paddingLeft: 16, paddingTop: multiline ? 14 : 0 }}>
-            <Icon name={icon} size={19} color={focused ? colors.accent : colors.tertiaryLabel} />
+            <Icon name={icon} size={20} color={focused ? colors.ink : colors.tertiaryLabel} />
           </Pressable>
         )}
         <TextInput
@@ -240,7 +240,8 @@ export function Button({
   style,
 }
 ) {
-  const filled = variant === "filled";
+  const ink = variant === "ink";
+  const filled = variant === "filled" || ink;
   const accentOutline = variant === "accentOutline";
   const outlined = variant === "outline" || variant === "tinted" || variant === "destructive" || accentOutline;
   const fg = filled ? colors.onAccent : variant === "destructive" ? colors.danger : variant === "plain" || accentOutline ? colors.accent : colors.label;
@@ -253,7 +254,7 @@ export function Button({
       disabled={disabled || loading}
       style={({ pressed }) => [
         {
-          backgroundColor: filled ? (pressed ? colors.accentPressed : colors.accent) : outlined ? (pressed ? colors.fill : colors.cell) : "transparent",
+          backgroundColor: ink ? (pressed ? colors.navyRaised : colors.ink) : filled ? (pressed ? colors.accentPressed : colors.accent) : outlined ? (pressed ? colors.fill : colors.cell) : "transparent",
           borderWidth: outlined ? 1.5 : 0,
           borderColor: variant === "destructive" ? colors.dangerSoft : accentOutline ? colors.accent : colors.inputBorder,
           minHeight: 54,

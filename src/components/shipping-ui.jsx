@@ -47,9 +47,9 @@ export function MethodChip({ method }) {
 export function SoonPill({ label, onNavy }) {
   const fg = onNavy ? colors.amberInk : colors.accent;
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 12, height: 30, borderRadius: 999, backgroundColor: onNavy ? colors.amber : colors.accentTint }}>
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 10, height: 26, borderRadius: 999, backgroundColor: onNavy ? colors.amber : colors.accentTint }}>
       <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: onNavy ? colors.accent : colors.accent }} />
-      <Text style={{ fontSize: 15, fontWeight: "600", color: fg }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: "700", color: fg }}>{label}</Text>
     </View>
   );
 }
@@ -146,7 +146,7 @@ export function Segments({ options, value, onChange, large }) {
             accessibilityState={{ selected }}
             style={{
               flex: 1,
-              minHeight: large ? 52 : 44,
+              minHeight: large ? 48 : 40,
               paddingHorizontal: crowded ? 2 : 8,
               borderRadius: 12,
               alignItems: "center",
@@ -155,7 +155,7 @@ export function Segments({ options, value, onChange, large }) {
               boxShadow: selected ? "0 1px 4px rgba(13,31,51,0.14)" : undefined,
             }}
           >
-            <Text numberOfLines={1} style={{ fontSize: crowded ? 15 : 17, fontWeight: selected ? "700" : "500", color: selected ? colors.label : colors.secondaryLabel }}>
+            <Text numberOfLines={1} style={{ fontSize: crowded ? 13 : 14, fontWeight: selected ? "700" : "500", color: selected ? colors.label : colors.secondaryLabel }}>
               {o.label}
             </Text>
           </Pressable>
@@ -224,7 +224,7 @@ export function RoundButton({ icon, label, onPress, active }) {
       accessibilityLabel={label}
       accessibilityState={active !== undefined ? { selected: active } : undefined}
       hitSlop={4}
-      style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: pressed ? "rgba(255,255,255,0.24)" : "rgba(255,255,255,0.14)" })}
+      style={({ pressed }) => ({ width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: pressed ? "rgba(255,255,255,0.24)" : "rgba(255,255,255,0.14)" })}
     >
       <Icon name={icon} size={20} color={colors.onNavy} weight="semibold" />
     </Pressable>

@@ -40,8 +40,8 @@ const SUPPLIER_TABS = [
 function Fact({ label, value, first }) {
   return (
     <View style={{ flex: 1, gap: 2, paddingLeft: first ? 0 : 14, borderLeftWidth: first ? 0 : 1, borderLeftColor: colors.separator }}>
-      <Text style={{ fontSize: 16, color: colors.secondaryLabel }}>{label}</Text>
-      <Text numberOfLines={2} style={{ fontSize: 18, fontWeight: "700", color: colors.label }}>
+      <Text style={{ fontSize: 12, color: colors.secondaryLabel }}>{label}</Text>
+      <Text numberOfLines={2} style={{ fontSize: 14, fontWeight: "700", color: colors.label }}>
         {value}
       </Text>
     </View>
@@ -52,10 +52,10 @@ function SectionTitle({ children, subtitle, action }) {
   return (
     <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 12 }}>
       <View style={{ flex: 1, gap: 2 }}>
-        <Text accessibilityRole="header" style={{ fontSize: 22, fontWeight: "700", color: colors.label }}>
+        <Text accessibilityRole="header" style={{ fontSize: 18, fontWeight: "800", letterSpacing: -0.3, color: colors.label }}>
           {children}
         </Text>
-        {subtitle ? <Text style={{ fontSize: 16, lineHeight: 21, color: colors.secondaryLabel }}>{subtitle}</Text> : null}
+        {subtitle ? <Text style={{ fontSize: 14, lineHeight: 19, color: colors.secondaryLabel }}>{subtitle}</Text> : null}
       </View>
       {action}
     </View>
@@ -92,20 +92,20 @@ function HeaderAction({ title, icon, onPress, outline, loading }) {
       accessibilityRole="button"
       style={({ pressed }) => ({
         flex: 1,
-        minHeight: 56,
+        minHeight: 46,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        gap: 10,
-        borderRadius: 14,
+        gap: 8,
+        borderRadius: 13,
         borderWidth: outline ? 1.5 : 0,
         borderColor: colors.navyBorder,
         backgroundColor: outline ? (pressed ? "rgba(255,255,255,0.08)" : "transparent") : pressed ? colors.accentPressed : colors.accent,
         opacity: loading ? 0.7 : 1,
       })}
     >
-      <Icon name={icon} size={20} color={colors.onNavy} />
-      <Text style={{ fontSize: 19, fontWeight: "700", color: colors.onNavy }}>{loading ? "Opening…" : title}</Text>
+      <Icon name={icon} size={18} color={colors.onNavy} />
+      <Text style={{ fontSize: 15, fontWeight: "700", color: colors.onNavy }}>{loading ? "Opening…" : title}</Text>
     </Pressable>
   );
 }
@@ -240,7 +240,7 @@ export default function CompanyScreen() {
         <View style={{ gap: 18 }}>
           {[...new Set(priceList.map((p) => p.destination))].map((dest) => (
             <View key={dest} style={{ gap: 8 }}>
-              <Text style={{ fontSize: 17, fontWeight: "700", color: colors.bodyText }}>To {dest}</Text>
+              <Text style={{ fontSize: 15, fontWeight: "700", color: colors.bodyText }}>To {dest}</Text>
               {priceList
                 .filter((p) => p.destination === dest)
                 .sort((a, b) => METHOD_ORDER.indexOf(a.method) - METHOD_ORDER.indexOf(b.method))
@@ -250,13 +250,13 @@ export default function CompanyScreen() {
                       <Icon name={METHODS[p.method]?.icon} size={20} color={METHODS[p.method]?.fg} />
                     </View>
                     <View style={{ flex: 1, gap: 2 }}>
-                      <Text style={{ fontSize: 17, fontWeight: "600", color: colors.label }}>{METHODS[p.method]?.label ?? p.method}</Text>
+                      <Text style={{ fontSize: 15, fontWeight: "600", color: colors.label }}>{METHODS[p.method]?.label ?? p.method}</Text>
                       <Text style={{ fontSize: 15, color: colors.secondaryLabel }}>
                         {[transitText(p), p.battery_surcharge ? `+${money(p.battery_surcharge)} with batteries` : null].filter(Boolean).join(" · ")}
                       </Text>
                     </View>
                     <View style={{ alignItems: "flex-end" }}>
-                      <Text style={{ fontSize: 19, fontWeight: "700", color: colors.label }}>{money(p.price)}</Text>
+                      <Text style={{ fontSize: 16, fontWeight: "800", color: colors.label }}>{money(p.price)}</Text>
                       <Text style={{ fontSize: 14, color: colors.secondaryLabel }}>{UNIT_LABEL[p.unit] ?? p.unit}</Text>
                     </View>
                   </View>
@@ -283,7 +283,7 @@ export default function CompanyScreen() {
     <Card>
       <View style={{ gap: 8 }}>
         <SectionTitle>About us</SectionTitle>
-        <Text selectable style={{ fontSize: 17, lineHeight: 25, color: colors.secondaryLabel }}>
+        <Text selectable style={{ fontSize: 15, lineHeight: 22, color: colors.secondaryLabel }}>
           {c.description || `${c.name} hasn't added a description yet.`}
         </Text>
       </View>
@@ -334,7 +334,7 @@ export default function CompanyScreen() {
               <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: colors.accentSoft, alignItems: "center", justifyContent: "center" }}>
                 <Icon name={{ sf: "shippingbox", md: "inventory_2" }} size={19} color={colors.accent} />
               </View>
-              <Text style={{ flex: 1, fontSize: 17, fontWeight: "600", color: colors.label }}>{t}</Text>
+              <Text style={{ flex: 1, fontSize: 15, fontWeight: "600", color: colors.label }}>{t}</Text>
               <Text style={{ fontSize: 15, color: colors.tertiaryLabel }}>Similar suppliers</Text>
               <Icon name={{ sf: "chevron.right", md: "chevron_right" }} size={14} color={colors.tertiaryLabel} />
             </Pressable>
@@ -355,7 +355,7 @@ export default function CompanyScreen() {
               <Icon name={{ sf: "rosette", md: "workspace_premium" }} size={20} color={colors.success} />
             </View>
             <View style={{ flex: 1, gap: 2 }}>
-              <Text style={{ fontSize: 17, fontWeight: "700", color: colors.label }}>{x.name}</Text>
+              <Text style={{ fontSize: 15, fontWeight: "700", color: colors.label }}>{x.name}</Text>
               {x.issuer || x.valid_until ? <Text style={{ fontSize: 15, color: colors.secondaryLabel }}>{[x.issuer, x.valid_until && `Valid until ${x.valid_until}`].filter(Boolean).join(" · ")}</Text> : null}
             </View>
           </View>
@@ -400,7 +400,7 @@ export default function CompanyScreen() {
       <StatusBar style="light" />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
         {/* Navy header */}
-        <View style={{ backgroundColor: colors.navy, paddingTop: insets.top + 12, paddingHorizontal: 16, paddingBottom: shipping ? 84 : 24, gap: 20 }}>
+        <View style={{ backgroundColor: colors.navy, paddingTop: insets.top + 8, paddingHorizontal: 16, paddingBottom: shipping ? 60 : 18, gap: 14 }}>
           <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
             <RoundButton icon={{ sf: "chevron.left", md: "arrow_back" }} label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))} />
             <View style={{ flexDirection: "row", gap: 12 }}>
@@ -414,25 +414,25 @@ export default function CompanyScreen() {
             </View>
           </View>
 
-          <View style={{ flexDirection: "row", gap: 16, alignItems: "center" }}>
-            <CompanyLogo company={c} size={100} light />
-            <View style={{ flex: 1, gap: 4 }}>
-              <Text selectable accessibilityRole="header" style={{ fontSize: 30, lineHeight: 34, fontWeight: "700", color: colors.onNavy }}>
+          <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
+            <CompanyLogo company={c} size={60} light />
+            <View style={{ flex: 1, gap: 3 }}>
+              <Text selectable accessibilityRole="header" style={{ fontSize: 22, lineHeight: 26, fontWeight: "800", letterSpacing: -0.5, color: colors.onNavy }}>
                 {c.name}
               </Text>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                {c.is_verified && <Icon name={{ sf: "checkmark.shield", md: "verified_user" }} size={16} color={colors.onNavySuccess} />}
-                <Text style={{ flexShrink: 1, fontSize: 17, color: c.is_verified ? colors.onNavySuccess : colors.onNavySecondary }}>{companyLine(c)}</Text>
+                {c.is_verified && <Icon name={{ sf: "checkmark.shield", md: "verified_user" }} size={14} color={colors.onNavySuccess} />}
+                <Text numberOfLines={1} style={{ flexShrink: 1, fontSize: 14, color: c.is_verified ? colors.onNavySuccess : colors.onNavySecondary }}>{companyLine(c)}</Text>
               </View>
               <Pressable onPress={() => setTab("reviews")} accessibilityRole="link" style={{ flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-start" }}>
-                <Text style={{ fontSize: 18, color: rating === null ? "rgba(255,255,255,0.4)" : colors.amber }}>★</Text>
-                <Text style={{ fontSize: 18, fontWeight: "700", color: colors.onNavy }}>{formatRating(rating)}</Text>
-                <Text style={{ fontSize: 17, color: colors.onNavySecondary, textDecorationLine: "underline" }}>{pluralize(c.review_count, "review")}</Text>
+                <Text style={{ fontSize: 14, color: rating === null ? "rgba(255,255,255,0.4)" : colors.amber }}>★</Text>
+                <Text style={{ fontSize: 14, fontWeight: "700", color: colors.onNavy }}>{formatRating(rating)}</Text>
+                <Text style={{ fontSize: 14, color: colors.onNavySecondary, textDecorationLine: "underline" }}>{pluralize(c.review_count, "review")}</Text>
               </Pressable>
             </View>
           </View>
 
-          <View style={{ flexDirection: "row", gap: 12 }}>
+          <View style={{ flexDirection: "row", gap: 10 }}>
             {isOwner ? (
               <HeaderAction title="Manage company" icon={{ sf: "slider.horizontal.3", md: "tune" }} onPress={() => router.push(`/manage/${c.id}`)} />
             ) : (
@@ -450,24 +450,24 @@ export default function CompanyScreen() {
 
         {/* Next departure ticket, overlapping the header */}
         {shipping && (
-          <View style={{ marginTop: -64, marginHorizontal: 16, borderRadius: 24, borderCurve: "continuous", backgroundColor: colors.cell, borderWidth: 1, borderColor: colors.border, padding: 20, gap: 16, boxShadow: "0 6px 20px rgba(13,31,51,0.10)" }}>
-            <View style={{ gap: 8 }}>
+          <View style={{ marginTop: -46, marginHorizontal: 16, borderRadius: 20, borderCurve: "continuous", backgroundColor: colors.cell, borderWidth: 1, borderColor: colors.border, padding: 14, gap: 12, boxShadow: "0 6px 20px rgba(13,31,51,0.10)" }}>
+            <View style={{ gap: 6 }}>
               <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                <Text style={{ fontSize: 17, color: colors.secondaryLabel }}>Next departure</Text>
+                <Text style={{ fontSize: 13, color: colors.secondaryLabel }}>Next departure</Text>
                 {next ? <SoonPill label={relativeDay(next.departure_date)} /> : null}
               </View>
               {next ? (
                 <>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                    <Icon name={METHODS[next.method]?.icon} size={24} color={colors.accent} />
-                    <Text style={{ flexShrink: 1, fontSize: 26, fontWeight: "700", color: colors.label }}>{departureTitle(next)}</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                    <Icon name={METHODS[next.method]?.icon} size={18} color={colors.accent} />
+                    <Text numberOfLines={2} style={{ flexShrink: 1, fontSize: 18, lineHeight: 22, fontWeight: "800", color: colors.label }}>{departureTitle(next)}</Text>
                   </View>
-                  <Text style={{ fontSize: 18, fontWeight: "600", color: colors.accent }}>
+                  <Text style={{ fontSize: 14, fontWeight: "600", color: colors.accent }}>
                     {shortDate(next.departure_date)}, drop off by {deadlineText(next.dropoff_deadline)}
                   </Text>
                 </>
               ) : (
-                <Text style={{ fontSize: 20, fontWeight: "700", color: colors.label }}>{departures.isPending ? "Loading…" : "None scheduled yet"}</Text>
+                <Text style={{ fontSize: 16, fontWeight: "700", color: colors.label }}>{departures.isPending ? "Loading…" : "None scheduled yet"}</Text>
               )}
             </View>
             <TicketTear cut={colors.groupedBackground} />
@@ -479,8 +479,8 @@ export default function CompanyScreen() {
           </View>
         )}
 
-        <View style={{ paddingHorizontal: 16, paddingTop: 20, gap: 16 }}>
-          <Segments options={shipping ? SHIPPING_TABS : SUPPLIER_TABS} value={currentTab} onChange={setTab} large />
+        <View style={{ paddingHorizontal: 16, paddingTop: 14, gap: 14 }}>
+          <Segments options={shipping ? SHIPPING_TABS : SUPPLIER_TABS} value={currentTab} onChange={setTab} />
           {content}
           {!isOwner && (
             <Pressable
@@ -489,38 +489,40 @@ export default function CompanyScreen() {
               style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 48, opacity: pressed ? 0.6 : 1 })}
             >
               <Icon name={{ sf: "flag", md: "outlined_flag" }} size={16} color={colors.secondaryLabel} />
-              <Text style={{ fontSize: 16, color: colors.secondaryLabel, textDecorationLine: "underline" }}>Report this listing or request ownership</Text>
+              <Text style={{ fontSize: 13, color: colors.secondaryLabel, textDecorationLine: "underline" }}>Report this listing or request ownership</Text>
             </Pressable>
           )}
         </View>
       </ScrollView>
+      {/* Keeps scrolled content out from under the status bar once the navy header scrolls away. */}
+      <View pointerEvents="none" style={{ position: "absolute", top: 0, left: 0, right: 0, height: insets.top, backgroundColor: colors.navy }} />
 
       {/* Bottom bar */}
-      <View style={{ gap: 10, paddingHorizontal: 16, paddingTop: 12, paddingBottom: process.env.EXPO_OS === "web" ? 14 : Math.max(insets.bottom, 12), backgroundColor: colors.cell, borderTopWidth: 1, borderTopColor: colors.separator }}>
+      <View style={{ gap: 8, paddingHorizontal: 16, paddingTop: 10, paddingBottom: process.env.EXPO_OS === "ios" ? Math.max(insets.bottom, 12) : 12, backgroundColor: colors.cell, borderTopWidth: 1, borderTopColor: colors.separator }}>
         <Banner message={chat.error ? errorMessage(chat.error) : null} />
         {shipping && !isOwner ? (
           <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
             <View style={{ flex: 1 }}>
               {cheapest ? (
                 <>
-                  <Text style={{ fontSize: 16, color: colors.secondaryLabel }}>From</Text>
+                  <Text style={{ fontSize: 12, color: colors.secondaryLabel }}>From</Text>
                   <Text numberOfLines={1} adjustsFontSizeToFit>
-                    <Text style={{ fontSize: 28, fontWeight: "700", color: colors.label }}>{money(cheapest.price)}</Text>
-                    <Text style={{ fontSize: 17, color: colors.secondaryLabel }}>
+                    <Text style={{ fontSize: 22, fontWeight: "800", color: colors.label }}>{money(cheapest.price)}</Text>
+                    <Text style={{ fontSize: 13, color: colors.secondaryLabel }}>
                       {" "}
                       {UNIT_LABEL[cheapest.unit]} {cheapest.unit === "KG" ? "by air" : "by sea"}
                     </Text>
                   </Text>
                 </>
               ) : (
-                <Text style={{ fontSize: 16, color: colors.secondaryLabel }}>Prices on request</Text>
+                <Text style={{ fontSize: 14, color: colors.secondaryLabel }}>Prices on request</Text>
               )}
             </View>
             <Button
               title={canEstimate ? "Get a quote" : "Request a quote"}
               loading={chat.isPending && !!chat.variables}
               onPress={canEstimate ? estimate : () => openChat(quoteDraft)}
-              style={{ paddingHorizontal: 28, minHeight: 60 }}
+              style={{ paddingHorizontal: 22, minHeight: 50 }}
             />
           </View>
         ) : isOwner ? (

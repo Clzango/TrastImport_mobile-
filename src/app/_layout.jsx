@@ -111,6 +111,7 @@ function RootStack() {
       </Stack.Protected>
       {/* Where WeChat sends the browser back after sign-in (web). */}
       <Stack.Screen name="auth/callback" options={{ headerShown: false, animation: "none" }} />
+      <Stack.Screen name="auth/return" options={{ headerShown: false, animation: "none" }} />
       {/* Opened from the reset email, whether or not this device is signed in. */}
       <Stack.Screen name="reset-password/[uid]/[token]" options={{ ...modal, title: "New Password" }} />
     </Stack>

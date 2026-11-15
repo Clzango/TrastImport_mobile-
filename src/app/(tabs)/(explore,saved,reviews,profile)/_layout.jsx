@@ -33,6 +33,8 @@ export default function TabStackLayout({ segment }) {
         ))}
       <Stack.Screen name="company/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="search" options={{ headerShown: false }} />
+      <Stack.Screen name="products" options={{ headerShown: false }} />
+      <Stack.Screen name="product/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="my-reviews" options={{ title: "" }} />
       <Stack.Screen name="help" options={{ title: "" }} />
       <Stack.Screen name="claims" options={{ title: "Ownership & Reports" }} />

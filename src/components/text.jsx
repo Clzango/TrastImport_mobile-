@@ -11,11 +11,15 @@ function withFont(style) {
   return [style, { fontFamily: flat.fontFamily ?? family, fontWeight: "normal" }];
 }
 
+// Large system font sizes (Android Settings > Display > Font size, iOS Larger Text) still enlarge
+// text, but only up to 1.2x, so layouts don't break. Pass maxFontSizeMultiplier to change it.
+const MAX_FONT_SCALE = 1.2;
+
 /** Drop-in for React Native's Text that renders in Figtree. */
-export function Text({ style, ...props }) {
-  return <RNText {...props} style={withFont(style)} />;
+export function Text({ style, maxFontSizeMultiplier = MAX_FONT_SCALE, ...props }) {
+  return <RNText maxFontSizeMultiplier={maxFontSizeMultiplier} {...props} style={withFont(style)} />;
 }
 
-export const TextInput = forwardRef(function TextInput({ style, ...props }, ref) {
-  return <RNTextInput ref={ref} {...props} style={withFont(style)} />;
+export const TextInput = forwardRef(function TextInput({ style, maxFontSizeMultiplier = MAX_FONT_SCALE, ...props }, ref) {
+  return <RNTextInput ref={ref} maxFontSizeMultiplier={maxFontSizeMultiplier} {...props} style={withFont(style)} />;
 });

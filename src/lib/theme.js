@@ -31,6 +31,20 @@ export const colors = {
   amberInk: "#3B2205",
   amberText: "#F9B56E",
 
+  // 2026 refresh: steel surfaces, container orange, teal for companies, cargo yellow for "soon".
+  ink: "#0F1B2A",
+  inkSecondary: "#5B6878",
+  steel: "#EEF2F5",
+  steelBorder: "#DCE3EA",
+  container: "#C9470B",
+  containerRib: "rgba(120,30,0,0.16)",
+  containerShine: "rgba(255,255,255,0.10)",
+  teal: "#0E7C7B",
+  tealSoft: "#E3F2F1",
+  tealInk: "#0A5B5A",
+  cargo: "#FFC93C",
+  cargoInk: "#3A2600",
+
   // Text
   label: "#0D1F33",
   bodyText: "#24364B",

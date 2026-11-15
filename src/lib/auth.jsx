@@ -93,9 +93,13 @@ export function AuthProvider({ children }) {
       },
       signInWithGoogle: async (idToken) => finishSignIn(await api.auth.google(idToken)),
       signInWithApple: async (idToken, firstName, lastName) => finishSignIn(await api.auth.apple(idToken, firstName, lastName)),
+      signInWithPhone: async (phone, code, firstName, lastName) => finishSignIn(await api.auth.phoneLogin(phone, code, firstName, lastName)),
       signInWithProvider: async (provider) => {
         const redirectUri = Linking.createURL("auth/callback");
-        const { authorization_url } = await api.auth.socialUrl(provider, redirectUri);
+        // On phones, providers that only accept https (Google) return to a web page that forwards
+        // the result to redirectUri; see app/auth/return.jsx.
+        const serverRedirect = process.env.EXPO_OS !== "web" && process.env.EXPO_PUBLIC_OAUTH_RETURN_URL ? process.env.EXPO_PUBLIC_OAUTH_RETURN_URL : redirectUri;
+        const { authorization_url } = await api.auth.socialUrl(provider, serverRedirect);
         if (process.env.EXPO_OS === "web") {
           // A full-page redirect, since popups opened after an await get blocked. The provider
           // sends the browser back to /auth/callback, which calls completeProviderSignIn.
