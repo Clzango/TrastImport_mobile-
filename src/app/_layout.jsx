@@ -1,11 +1,11 @@
 import {
-  Figtree_400Regular,
-  Figtree_500Medium,
-  Figtree_600SemiBold,
-  Figtree_700Bold,
-  Figtree_800ExtraBold,
+  Barlow_400Regular,
+  Barlow_500Medium,
+  Barlow_600SemiBold,
+  Barlow_700Bold,
+  Barlow_800ExtraBold,
   useFonts,
-} from "@expo-google-fonts/figtree";
+} from "@expo-google-fonts/barlow";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as SplashScreen from "expo-splash-screen";
 import { Stack } from "expo-router/stack";
@@ -41,7 +41,7 @@ const modal = { presentation: "modal", headerShown: true };
 const authScreen = { headerShown: false, animation: "fade", contentStyle: { backgroundColor: colors.cell } };
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({ Figtree_400Regular, Figtree_500Medium, Figtree_600SemiBold, Figtree_700Bold, Figtree_800ExtraBold });
+  const [loaded, error] = useFonts({ Barlow_400Regular, Barlow_500Medium, Barlow_600SemiBold, Barlow_700Bold, Barlow_800ExtraBold });
 
   if (!loaded && !error) return null;
 
@@ -103,7 +103,7 @@ function RootStack() {
         />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
-        <Stack.Screen name="welcome" options={{ ...authScreen, contentStyle: { backgroundColor: colors.accentPressed } }} />
+        <Stack.Screen name="welcome" options={{ ...authScreen, contentStyle: { backgroundColor: colors.navy } }} />
         <Stack.Screen name="login" options={authScreen} />
         <Stack.Screen name="signup" options={authScreen} />
         <Stack.Screen name="verify" options={{ ...authScreen, animation: "slide_from_right" }} />

@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
-import { AuthLayout, Checkbox } from "@/components/auth-ui";
+import { AuthLayout, AuthSwitch, Checkbox } from "@/components/auth-ui";
 import { MethodSwitch, PhoneStart } from "@/components/phone-sign-in";
 import { SocialSignIn } from "@/components/social-sign-in";
 import { Text } from "@/components/text";
@@ -45,14 +45,12 @@ export default function LoginScreen() {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Log in to see your quotes and messages."
+      subtitle="Sign in to see departures, prices and your chats."
       footer={
-        <Text style={{ textAlign: "center", fontSize: 15, color: colors.secondaryLabel }}>
-          New to TrastImport?{" "}
-          <Text onPress={() => router.replace("/signup")} style={{ fontWeight: "800", color: colors.container }} accessibilityRole="link">
-            Create an account
-          </Text>
-        </Text>
+        <View style={{ gap: 14 }}>
+          <AuthSwitch prompt="New to TrastImport?" action="Create an account" onPress={() => router.replace("/signup")} />
+          <Text style={{ textAlign: "center", fontSize: 13, lineHeight: 19, color: colors.secondaryLabel }}>By continuing you agree to our Terms of use and Privacy policy.</Text>
+        </View>
       }
     >
       <MethodSwitch value={method} onChange={setMethod} />
@@ -96,16 +94,15 @@ export default function LoginScreen() {
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
           <Checkbox label="Remember me" value={remember} onChange={setRemember} />
           <Pressable onPress={() => router.push("/forgot-password")} hitSlop={8} accessibilityRole="link" style={{ minHeight: 32, justifyContent: "center" }}>
-            <Text style={{ fontSize: 15, fontWeight: "700", color: colors.container }}>Forgot password?</Text>
+            <Text style={{ fontSize: 15, fontWeight: "700", color: colors.accent }}>Forgot password?</Text>
           </Pressable>
         </View>
         <Button
-          title="Log in"
-          variant="ink"
+          title="Sign in"
           onPress={() => login.mutate()}
           loading={login.isPending}
           disabled={!email || !password}
-          style={{ marginTop: 4, minHeight: 56, boxShadow: "0 8px 20px rgba(15,27,42,0.22)" }}
+          style={{ marginTop: 4, minHeight: 54, boxShadow: !email || !password ? undefined : "0 8px 20px rgba(194,65,12,0.30)" }}
         />
       </View>
       )}

@@ -69,7 +69,7 @@ function FavoriteRow({ company: c, onRemove, last }) {
 
 function EmptyFavorites({ shipping }) {
   return (
-    <ContainerPanel color={shipping ? colors.teal : colors.container} style={{ marginTop: 8, borderRadius: 26, padding: 22, gap: 18 }}>
+    <ContainerPanel style={{ marginTop: 8, borderRadius: 20, padding: 22, gap: 18 }}>
       <View style={{ width: 64, height: 64, borderRadius: 20, borderCurve: "continuous", backgroundColor: colors.cell, alignItems: "center", justifyContent: "center", transform: [{ rotate: "-6deg" }], boxShadow: "0 10px 24px rgba(0,0,0,0.18)" }}>
         <Icon name={{ sf: "heart.fill", md: "favorite" }} size={30} color={shipping ? colors.teal : colors.container} />
       </View>

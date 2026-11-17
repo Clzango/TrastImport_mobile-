@@ -72,7 +72,7 @@ function QuickTile({ label, icon, onPress }) {
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} style={{ flex: 1, alignItems: "center", gap: 8 }}>
       {({ pressed }) => (
         <>
-          <View style={{ width: 58, height: 58, borderRadius: 20, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: pressed ? colors.steelBorder : colors.steel }}>
+          <View style={{ width: 58, height: 58, borderRadius: 16, borderCurve: "continuous", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colors.border, backgroundColor: pressed ? colors.fill : colors.cell }}>
             <Icon name={icon} size={26} color={colors.ink} />
           </View>
           <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: "600", color: colors.ink }}>
@@ -96,9 +96,9 @@ function NextDepartureTicket({ departure: d }) {
 
   return (
     <Pressable onPress={open} accessibilityRole="link" accessibilityLabel={`Next departure from ${from} to ${d.destination}, ${relativeDay(d.departure_date)}. ${name}`} style={({ pressed }) => ({ marginHorizontal: 20, opacity: pressed ? 0.94 : 1 })}>
-      <ContainerPanel style={{ borderRadius: 26, padding: 20, gap: 18 }}>
+      <ContainerPanel style={{ borderRadius: 20, padding: 20, gap: 18 }}>
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          <Text style={{ fontSize: 15, fontWeight: "600", color: colors.onAccent }}>Next departure</Text>
+          <Text style={{ fontSize: 15, fontWeight: "500", color: colors.onNavySecondary }}>Next departure</Text>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 5, height: 30, paddingHorizontal: 12, borderRadius: 8, backgroundColor: colors.cargo }}>
             <Icon name={{ sf: "clock.fill", md: "schedule" }} size={15} color={colors.cargoInk} />
             <Text style={{ fontSize: 14, fontWeight: "800", color: colors.cargoInk }}>{relativeDay(d.departure_date)}</Text>
@@ -127,7 +127,7 @@ function NextDepartureTicket({ departure: d }) {
               {name ? ` with ${name}` : ""}
             </Text>
           </View>
-          <View style={{ width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: colors.ink }}>
+          <View style={{ width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: colors.accent }}>
             <Icon name={{ sf: "arrow.right", md: "arrow_forward" }} size={18} color={colors.onAccent} weight="semibold" />
           </View>
         </View>
@@ -140,14 +140,14 @@ function NextDepartureTicket({ departure: d }) {
 function ShippingBanner() {
   return (
     <Pressable onPress={() => openSearch({ type: "LOG" })} accessibilityRole="link" accessibilityLabel="Browse shipping companies" style={({ pressed }) => ({ marginHorizontal: 20, opacity: pressed ? 0.94 : 1 })}>
-      <ContainerPanel style={{ borderRadius: 26, padding: 20, gap: 16 }}>
+      <ContainerPanel style={{ borderRadius: 20, padding: 20, gap: 16 }}>
         <View style={{ flexDirection: "row", gap: 8 }}>
           {[
             { icon: { sf: "ferry", md: "directions_boat" }, label: "Sea" },
             { icon: { sf: "airplane", md: "flight" }, label: "Air" },
             { icon: { sf: "box.truck", md: "local_shipping" }, label: "Express" },
           ].map((m) => (
-            <View key={m.label} style={{ flexDirection: "row", alignItems: "center", gap: 5, height: 28, paddingHorizontal: 10, borderRadius: 8, backgroundColor: "rgba(255,255,255,0.18)" }}>
+            <View key={m.label} style={{ flexDirection: "row", alignItems: "center", gap: 5, height: 28, paddingHorizontal: 10, borderRadius: 8, backgroundColor: "rgba(255,255,255,0.12)" }}>
               <Icon name={m.icon} size={15} color={colors.onAccent} />
               <Text style={{ fontSize: 13, fontWeight: "700", color: colors.onAccent }}>{m.label}</Text>
             </View>
@@ -155,11 +155,11 @@ function ShippingBanner() {
         </View>
         <View style={{ gap: 6 }}>
           <Text style={{ fontSize: 26, lineHeight: 30, fontWeight: "800", letterSpacing: -0.7, color: colors.onAccent }}>Find a carrier for your route</Text>
-          <Text style={{ fontSize: 15, lineHeight: 21, color: colors.onAccent }}>Compare shipping companies, their prices and next departures.</Text>
+          <Text style={{ fontSize: 15, lineHeight: 21, color: colors.onNavySecondary }}>Compare shipping companies, their prices and next departures.</Text>
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, paddingLeft: 14, paddingRight: 12, borderRadius: 16, borderCurve: "continuous", backgroundColor: colors.cell }}>
           <Text style={{ flex: 1, fontSize: 15, fontWeight: "700", color: colors.ink }}>Browse shipping companies</Text>
-          <View style={{ width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: colors.ink }}>
+          <View style={{ width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: colors.accent }}>
             <Icon name={{ sf: "arrow.right", md: "arrow_forward" }} size={18} color={colors.onAccent} weight="semibold" />
           </View>
         </View>
@@ -220,7 +220,7 @@ function SupplierCard({ company: c }) {
       onPress={() => router.push(`/company/${c.id}`)}
       accessibilityRole="link"
       accessibilityLabel={`${c.name}${location ? `, ${location}` : ""}. ${shown.join(", ")}`}
-      style={({ pressed }) => ({ padding: 14, gap: 12, borderRadius: 22, borderCurve: "continuous", borderWidth: 1, borderColor: colors.border, backgroundColor: pressed ? colors.groupedBackground : colors.cell })}
+      style={({ pressed }) => ({ padding: 14, gap: 12, borderRadius: 18, borderCurve: "continuous", borderWidth: 1, borderColor: colors.border, backgroundColor: pressed ? colors.groupedBackground : colors.cell })}
     >
       <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
         <CompanyLogo company={c} size={50} />
@@ -275,7 +275,7 @@ function SupplierCard({ company: c }) {
 
 function BoardFilter({ value, onChange }) {
   return (
-    <View accessibilityRole="tablist" style={{ flexDirection: "row", marginHorizontal: 20, padding: 3, borderRadius: 12, borderCurve: "continuous", backgroundColor: colors.steel }}>
+    <View accessibilityRole="tablist" style={{ flexDirection: "row", marginHorizontal: 20, padding: 3, borderRadius: 12, borderCurve: "continuous", backgroundColor: colors.segment }}>
       {BOARD_FILTERS.map((f) => {
         const selected = f.value === value;
         return (
@@ -325,8 +325,8 @@ export default function ExploreScreen() {
   return (
     <ScrollView
       ref={scroll}
-      style={{ flex: 1, backgroundColor: colors.cell }}
-      contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: 120, gap: 24 }}
+      style={{ flex: 1, backgroundColor: colors.groupedBackground }}
+      contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: 120, gap: 26 }}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -353,13 +353,13 @@ export default function ExploreScreen() {
           onPress={() => openSearch({ focus: "1" })}
           accessibilityRole="search"
           accessibilityLabel="Search suppliers, products or routes"
-          style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 10, height: 52, paddingLeft: 16, paddingRight: 6, borderRadius: 16, borderCurve: "continuous", backgroundColor: pressed ? colors.steelBorder : colors.steel })}
+          style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 10, height: 52, paddingLeft: 16, paddingRight: 6, borderRadius: 14, borderCurve: "continuous", borderWidth: 1, borderColor: colors.border, backgroundColor: pressed ? colors.fill : colors.cell })}
         >
           <Icon name={{ sf: "magnifyingglass", md: "search" }} size={21} color={colors.inkSecondary} />
           <Text numberOfLines={1} style={{ flex: 1, fontSize: 16, color: colors.inkSecondary }}>
             Suppliers, products, routes
           </Text>
-          <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: colors.cell, alignItems: "center", justifyContent: "center", boxShadow: "0 1px 2px rgba(15,27,42,0.08)" }}>
+          <View style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: colors.fill, alignItems: "center", justifyContent: "center" }}>
             <Icon name={{ sf: "slider.horizontal.3", md: "tune" }} size={19} color={colors.ink} />
           </View>
         </Pressable>
@@ -374,7 +374,7 @@ export default function ExploreScreen() {
             accessibilityRole="button"
             style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 6, height: 38, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.steelBorder, backgroundColor: pressed ? colors.steel : colors.cell })}
           >
-            <Icon name={c.icon} size={17} color={colors.teal} />
+            <Icon name={c.icon} size={17} color={colors.ink} />
             <Text style={{ fontSize: 14, fontWeight: "600", color: colors.ink }}>{c.label}</Text>
           </Pressable>
         ))}
@@ -424,7 +424,7 @@ export default function ExploreScreen() {
           ) : shipping.isError ? (
             <ErrorState message={errorMessage(shipping.error)} onRetry={() => shipping.refetch()} />
           ) : (
-            <View style={{ paddingHorizontal: 20 }}>
+            <View style={{ marginHorizontal: 16, paddingHorizontal: 14, borderRadius: 18, borderCurve: "continuous", borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cell }}>
               {shipping.data.results.slice(0, 4).map((c, i, list) => (
                 <ShippingRow key={c.id} company={c} last={i === list.length - 1} />
               ))}

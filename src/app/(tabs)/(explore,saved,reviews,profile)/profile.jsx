@@ -136,7 +136,7 @@ export default function ProfileScreen() {
 
       {/* Business owners manage their listing; everyone else is invited to find and claim theirs. */}
       <Pressable onPress={owned.length ? openCompanies : () => router.push({ pathname: "/search", params: { focus: "1" } })} accessibilityRole="button" style={({ pressed }) => ({ opacity: pressed ? 0.92 : 1 })}>
-        <ContainerPanel color={colors.teal} style={{ borderRadius: 20, padding: 16, flexDirection: "row", alignItems: "center", gap: 14 }}>
+        <ContainerPanel style={{ borderRadius: 20, padding: 16, flexDirection: "row", alignItems: "center", gap: 14 }}>
           <View style={{ flex: 1, gap: 3 }}>
             <Text style={{ fontSize: 19, fontWeight: "800", letterSpacing: -0.3, color: colors.onAccent }}>{owned.length ? (owned.length === 1 ? "Manage your company" : "Your companies") : "Own a company?"}</Text>
             <Text style={{ fontSize: 14, color: colors.onAccent }}>{owned.length ? "Departures, prices, products and reviews" : "Find its page and request ownership"}</Text>

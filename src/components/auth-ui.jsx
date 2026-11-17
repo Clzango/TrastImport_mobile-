@@ -6,54 +6,108 @@ import { KeyboardAvoidingView, Pressable, ScrollView, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/components/text";
 import { haptic, Icon } from "@/components/ui";
-import { ContainerPanel } from "@/components/container-panel";
+import { DashedLine } from "@/components/shipping-ui";
 import { colors, radius } from "@/lib/theme";
 
 // Pieces shared by the Welcome, Log in and Sign up screens.
 
 /**
- * Log in / Sign up frame: the orange container panel carries the back button, logo, title and
- * subtitle; the form sits on a white sheet that slides up over it. `footer` stays at the bottom.
+ * Log in / Sign up frame: a navy header with soft orange and blue glows, the logo and a dashed
+ * flight route (China to Latin America); the title, subtitle and form sit in a white card that
+ * overlaps the header. `footer` stays under the card.
  */
 export function AuthLayout({ title, subtitle, children, footer }) {
   const insets = useSafeAreaInsets();
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.container }} behavior="padding">
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.groupedBackground }} behavior="padding">
       <StatusBar style="light" />
       <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive" style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
-        <ContainerPanel style={{ paddingTop: insets.top + 12, paddingHorizontal: 24, paddingBottom: 64, gap: 22 }}>
+        <View style={{ backgroundColor: colors.navy, overflow: "hidden", paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 76, gap: 22 }}>
+          {/* Soft glows behind the header content. */}
+          <View pointerEvents="none" style={{ position: "absolute", top: -20, left: -10, width: 2, height: 2, boxShadow: "0 0 120px 90px rgba(194,65,12,0.32)" }} />
+          <View pointerEvents="none" style={{ position: "absolute", top: 150, right: -10, width: 2, height: 2, boxShadow: "0 0 120px 90px rgba(31,95,153,0.45)" }} />
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 44 }}>
             {router.canGoBack() ? (
-              <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} style={{ width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.18)" }}>
-                <Icon name={{ sf: "chevron.left", md: "arrow_back_ios_new" }} size={18} color={colors.onAccent} weight="semibold" />
+              <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} style={{ width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.12)" }}>
+                <Icon name={{ sf: "chevron.left", md: "arrow_back_ios_new" }} size={18} color={colors.onNavy} weight="semibold" />
               </Pressable>
             ) : (
               <View style={{ width: 44 }} />
             )}
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-              <View style={{ width: 30, height: 30, borderRadius: 9, backgroundColor: colors.cell, alignItems: "center", justifyContent: "center" }}>
-                <Icon name={{ sf: "sailboat.fill", md: "sailing" }} size={17} color={colors.container} />
-              </View>
-              <Text style={{ fontSize: 18, fontWeight: "800", letterSpacing: -0.3, color: colors.onAccent }}>TrastImport</Text>
+          </View>
+          <View style={{ alignItems: "center", gap: 16 }}>
+            <Wordmark size={22} onDark />
+            <FlightRoute />
+          </View>
+        </View>
+        <View style={{ marginTop: -48, paddingHorizontal: 16 }}>
+          <View
+            style={{
+              width: "100%",
+              maxWidth: 560,
+              alignSelf: "center",
+              padding: 20,
+              paddingTop: 22,
+              borderRadius: 24,
+              borderCurve: "continuous",
+              borderWidth: 1,
+              borderColor: colors.border,
+              backgroundColor: colors.cell,
+              boxShadow: "0 16px 40px rgba(11,31,51,0.12)",
+            }}
+          >
+            <View style={{ gap: 4, marginBottom: 18 }}>
+              <Text accessibilityRole="header" style={{ fontSize: 28, lineHeight: 32, fontWeight: "800", color: colors.label }}>
+                {title}
+              </Text>
+              {subtitle ? <Text style={{ fontSize: 15, lineHeight: 21, color: colors.secondaryLabel }}>{subtitle}</Text> : null}
             </View>
-            <View style={{ width: 44 }} />
-          </View>
-          <View style={{ gap: 6, width: "100%", maxWidth: 560, alignSelf: "center" }}>
-            <Text accessibilityRole="header" style={{ fontSize: 32, lineHeight: 36, fontWeight: "800", letterSpacing: -1, color: colors.onAccent }}>
-              {title}
-            </Text>
-            {subtitle ? <Text style={{ fontSize: 16, lineHeight: 22, color: colors.onAccent }}>{subtitle}</Text> : null}
-          </View>
-        </ContainerPanel>
-        <View style={{ flexGrow: 1, marginTop: -32, borderTopLeftRadius: 32, borderTopRightRadius: 32, borderCurve: "continuous", backgroundColor: colors.cell, boxShadow: "0 -10px 30px rgba(60,15,0,0.18)" }}>
-          <View style={{ flexGrow: 1, width: "100%", maxWidth: 560, alignSelf: "center", paddingTop: 28, paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}>
             {children}
-            <View style={{ flex: 1, minHeight: 24 }} />
-            {footer}
           </View>
+        </View>
+        <View style={{ flexGrow: 1, width: "100%", maxWidth: 592, alignSelf: "center", paddingTop: 20, paddingHorizontal: 16, paddingBottom: insets.bottom + 24 }}>
+          {footer}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+  );
+}
+
+/** Dashed route with a plane, from China to Latin America, drawn on the navy header. */
+function FlightRoute() {
+  const dot = { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.amber };
+  const line = "rgba(255,255,255,0.28)";
+  return (
+    <View accessible={false} style={{ width: "100%", maxWidth: 360, gap: 6 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+        <View style={dot} />
+        <DashedLine color={line} style={{ flex: 1 }} />
+        <View style={{ transform: [{ rotate: "90deg" }] }}>
+          <Icon name={{ sf: "airplane", md: "flight" }} size={18} color={colors.amber} />
+        </View>
+        <DashedLine color={line} style={{ flex: 1 }} />
+        <View style={dot} />
+      </View>
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <Text style={{ fontSize: 13, fontWeight: "600", color: colors.onNavySecondary }}>China</Text>
+        <Text style={{ fontSize: 13, fontWeight: "600", color: colors.onNavySecondary }}>Latin America</Text>
+      </View>
+    </View>
+  );
+}
+
+/** Secondary action under the auth card, e.g. "New to TrastImport? Create an account". */
+export function AuthSwitch({ prompt, action, onPress }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="link"
+      style={({ pressed }) => ({ minHeight: 52, borderRadius: radius.button, borderCurve: "continuous", borderWidth: 1.5, borderColor: colors.navy, alignItems: "center", justifyContent: "center", paddingHorizontal: 16, backgroundColor: pressed ? colors.fill : "transparent" })}
+    >
+      <Text style={{ fontSize: 16, fontWeight: "700", color: colors.label, textAlign: "center" }}>
+        {prompt} <Text style={{ fontWeight: "800", color: colors.accent }}>{action}</Text>
+      </Text>
+    </Pressable>
   );
 }
 

@@ -137,7 +137,7 @@ function SuppliersVisual({ topInset }) {
       </View>
       <View style={{ marginHorizontal: 14, padding: 16, borderRadius: 24, borderCurve: "continuous", backgroundColor: colors.cell, boxShadow: cardShadow, transform: [{ rotate: "-3deg" }], gap: 12 }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-          <ContainerPanel color={colors.teal} style={{ width: 50, height: 50, borderRadius: 15, alignItems: "center", justifyContent: "center" }}>
+          <ContainerPanel style={{ width: 50, height: 50, borderRadius: 15, alignItems: "center", justifyContent: "center" }}>
             <Text style={{ fontSize: 18, fontWeight: "800", color: colors.onAccent }}>TX</Text>
           </ContainerPanel>
           <View style={{ flex: 1, gap: 2 }}>
@@ -186,7 +186,7 @@ function Quote({ icon, mode, transit, unit, highlight, rotate }) {
 /** Slide 3: air and sea quotes side by side, the next cut-off, and a quote request. */
 function QuotesVisual({ topInset }) {
   return (
-    <ContainerPanel color={colors.teal} style={{ flex: 1, paddingTop: topInset + 76, paddingHorizontal: 28, gap: 18 }}>
+    <ContainerPanel style={{ flex: 1, paddingTop: topInset + 64, paddingHorizontal: 24, gap: 14 }}>
       <Quote icon={{ sf: "airplane", md: "flight" }} mode="Air" transit="Days, door to door" unit="per kg" highlight rotate="-2deg" />
       <Quote icon={{ sf: "ferry", md: "directions_boat" }} mode="Sea" transit="Weeks, port to port" unit="per m³" rotate="1.5deg" />
       <View style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: 20, borderCurve: "continuous", backgroundColor: colors.ink, boxShadow: cardShadow }}>
@@ -204,7 +204,11 @@ export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const reduceMotion = useReduceMotion();
-  const visualHeight = Math.round(Math.min(Math.max(height * 0.6, 420), 560));
+  // Leave room under the visual for the title, message and the buttons, which sit over the
+  // bottom of the screen: on small phones (Galaxy S24 and similar) a fixed 60% left the text under them.
+  const compact = height < 820 || width < 380;
+  const bottomRoom = (compact ? 330 : 360) + insets.bottom;
+  const visualHeight = Math.round(Math.min(Math.max(height - bottomRoom, 300), 560));
   const globeSize = Math.min(width - 24, visualHeight - insets.top - 110);
   const [active, setActive] = useState(0);
   const pager = useRef(null);
@@ -248,11 +252,11 @@ export default function WelcomeScreen() {
             <View style={{ height: visualHeight, borderBottomLeftRadius: 40, borderBottomRightRadius: 40, borderCurve: "continuous", overflow: "hidden" }}>
               {slide.key === "world" ? <WorldVisual size={globeSize} float={float} /> : slide.key === "suppliers" ? <SuppliersVisual topInset={insets.top} /> : <QuotesVisual topInset={insets.top} />}
             </View>
-            <View style={{ paddingHorizontal: 24, paddingTop: 26, gap: 12, maxWidth: 560 }}>
-              <Text accessibilityRole="header" style={{ fontSize: 32, lineHeight: 35, fontWeight: "800", letterSpacing: -1.1, color: colors.ink }}>
+            <View style={{ paddingHorizontal: 24, paddingTop: compact ? 20 : 26, gap: compact ? 8 : 12, maxWidth: 560 }}>
+              <Text accessibilityRole="header" style={{ fontSize: compact ? 27 : 32, lineHeight: compact ? 30 : 35, fontWeight: "800", letterSpacing: compact ? -0.7 : -1.1, color: colors.ink }}>
                 {slide.title}
               </Text>
-              <Text style={{ fontSize: 16, lineHeight: 24, color: colors.inkSecondary, maxWidth: 340 }}>{slide.message}</Text>
+              <Text style={{ fontSize: compact ? 15 : 16, lineHeight: compact ? 21 : 24, color: colors.inkSecondary, maxWidth: 340 }}>{slide.message}</Text>
             </View>
           </View>
         ))}
@@ -274,15 +278,15 @@ export default function WelcomeScreen() {
       </View>
 
       {/* Progress and actions */}
-      <View style={{ position: "absolute", left: 24, right: 24, bottom: Math.max(24, insets.bottom + 12) }}>
+      <View style={{ position: "absolute", left: 24, right: 24, bottom: Math.max(compact ? 16 : 24, insets.bottom + 10) }}>
         {last ? (
-          <View style={{ gap: 14 }}>
+          <View style={{ gap: compact ? 10 : 14 }}>
             <Dots active={active} onPress={goTo} center />
             <View style={{ flexDirection: "row", gap: 10 }}>
-              <Pressable onPress={() => router.push("/login")} accessibilityRole="button" style={({ pressed }) => ({ flex: 1, height: 56, borderRadius: 16, borderCurve: "continuous", borderWidth: 1.5, borderColor: colors.steelBorder, alignItems: "center", justifyContent: "center", backgroundColor: pressed ? colors.steel : colors.cell })}>
+              <Pressable onPress={() => router.push("/login")} accessibilityRole="button" style={({ pressed }) => ({ flex: 1, height: compact ? 50 : 56, borderRadius: 14, borderCurve: "continuous", borderWidth: 1.5, borderColor: colors.steelBorder, alignItems: "center", justifyContent: "center", backgroundColor: pressed ? colors.steel : colors.cell })}>
                 <Text style={{ fontSize: 16, fontWeight: "700", color: colors.ink }}>Log in</Text>
               </Pressable>
-              <Pressable onPress={() => (haptic(), router.push("/signup"))} accessibilityRole="button" style={({ pressed }) => ({ flex: 1.4, height: 56, borderRadius: 16, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: pressed ? colors.accentPressed : colors.container, boxShadow: "0 8px 20px rgba(201,71,11,0.3)" })}>
+              <Pressable onPress={() => (haptic(), router.push("/signup"))} accessibilityRole="button" style={({ pressed }) => ({ flex: 1.4, height: compact ? 50 : 56, borderRadius: 14, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: pressed ? colors.accentPressed : colors.container, boxShadow: "0 8px 20px rgba(201,71,11,0.3)" })}>
                 <Text style={{ fontSize: 16, fontWeight: "800", color: colors.onAccent }}>Get started</Text>
               </Pressable>
             </View>

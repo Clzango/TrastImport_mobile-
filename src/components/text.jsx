@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 import { StyleSheet, Text as RNText, TextInput as RNTextInput } from "react-native";
 import { fonts } from "@/lib/theme";
 
-// Figtree ships one font file per weight, so a fontWeight has to become a fontFamily.
+// Barlow ships one font file per weight, so a fontWeight has to become a fontFamily.
 function withFont(style) {
   const flat = (StyleSheet.flatten(style) ?? {});
   const raw = String(flat.fontWeight ?? "400");
@@ -15,7 +15,7 @@ function withFont(style) {
 // text, but only up to 1.2x, so layouts don't break. Pass maxFontSizeMultiplier to change it.
 const MAX_FONT_SCALE = 1.2;
 
-/** Drop-in for React Native's Text that renders in Figtree. */
+/** Drop-in for React Native's Text that renders in Barlow. */
 export function Text({ style, maxFontSizeMultiplier = MAX_FONT_SCALE, ...props }) {
   return <RNText maxFontSizeMultiplier={maxFontSizeMultiplier} {...props} style={withFont(style)} />;
 }

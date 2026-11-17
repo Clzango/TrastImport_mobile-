@@ -1,14 +1,15 @@
-// TrastImport design tokens (light theme), from the "Dragon Express Shipping" redesign:
-// navy headers and tickets, orange actions, amber for "soon" (next departure, drop-off cut-off).
+// TrastImport design tokens (light theme), from the "Dragon Express Shipping" redesign (Nov 2026 handoff spec):
+// navy (#0B1F33) headers and tickets, orange (#C2410C) for actions and air freight, steel blue (#1F5F99) for sea,
+// green for verified, a cool grey page (#EEF1F4) and 1 px borders instead of shadows. Font: Barlow.
 
 export const colors = {
   // Brand
-  accent: "#D94F12",
-  accentPressed: "#B63D0B",
-  accentSoft: "#FFF1E8",
-  accentTint: "#FFE3D3",
-  accentInk: "#9F3508",
-  accentBorder: "#F4B58E",
+  accent: "#C2410C",
+  accentPressed: "#9A3412",
+  accentSoft: "#FFF7ED",
+  accentTint: "#FFEDE3",
+  accentInk: "#9A3412",
+  accentBorder: "#FDBA74",
   onAccent: "#FFFFFF",
 
   // Fresh green and lime accent used for account and discovery surfaces.
@@ -19,62 +20,62 @@ export const colors = {
   limeInk: "#31551A",
 
   // Navy: headers, tickets, the buyer's own chat bubbles
-  navy: "#10263F",
-  navyRaised: "#1A3858",
+  navy: "#0B1F33",
+  navyRaised: "#13293F",
   navyBorder: "rgba(255,255,255,0.28)",
   onNavy: "#FFFFFF",
-  onNavySecondary: "rgba(255,255,255,0.72)",
-  onNavySuccess: "#7EE0A1",
+  onNavySecondary: "#B8C4D1",
+  onNavySuccess: "#86EFAC",
 
   // Amber: "Tomorrow", cut-off times
-  amber: "#F6B26B",
-  amberInk: "#3B2205",
-  amberText: "#F9B56E",
+  amber: "#FDBA74",
+  amberInk: "#0B1F33",
+  amberText: "#FDBA74",
 
   // 2026 refresh: steel surfaces, container orange, teal for companies, cargo yellow for "soon".
-  ink: "#0F1B2A",
-  inkSecondary: "#5B6878",
-  steel: "#EEF2F5",
-  steelBorder: "#DCE3EA",
-  container: "#C9470B",
+  ink: "#0B1F33",
+  inkSecondary: "#4A5866",
+  steel: "#EEF1F4",
+  steelBorder: "#DCE1E7",
+  container: "#C2410C",
   containerRib: "rgba(120,30,0,0.16)",
   containerShine: "rgba(255,255,255,0.10)",
-  teal: "#0E7C7B",
-  tealSoft: "#E3F2F1",
-  tealInk: "#0A5B5A",
-  cargo: "#FFC93C",
-  cargoInk: "#3A2600",
+  teal: "#157347",
+  tealSoft: "#DCFCE7",
+  tealInk: "#166534",
+  cargo: "#FDBA74",
+  cargoInk: "#0B1F33",
 
   // Text
-  label: "#0D1F33",
-  bodyText: "#24364B",
-  secondaryLabel: "#4A5565",
-  tertiaryLabel: "#6B7684",
-  faint: "#9AA4B1",
+  label: "#0B1F33",
+  bodyText: "#1E3247",
+  secondaryLabel: "#4A5866",
+  tertiaryLabel: "#5B6875",
+  faint: "#9AA5B1",
 
   // Surfaces
-  groupedBackground: "#F4F6F9",
+  groupedBackground: "#EEF1F4",
   cell: "#FFFFFF",
-  border: "#E3E8EF",
-  separator: "#EDF0F4",
-  fill: "#F1F4F7",
-  segment: "#E6EBF1",
-  inputBorder: "#D9E0E8",
+  border: "#DCE1E7",
+  separator: "#E6EAEF",
+  fill: "#EEF1F4",
+  segment: "#DCE1E7",
+  inputBorder: "#DCE1E7",
   inputBackground: "#FFFFFF",
 
   // Shipping methods
-  sea: "#24609B",
-  seaSoft: "#E1ECF7",
-  air: "#C2450C",
-  airSoft: "#FCE7DD",
+  sea: "#1F5F99",
+  seaSoft: "#E3EDF7",
+  air: "#C2410C",
+  airSoft: "#FFEDE3",
 
   // Status
-  star: "#C2450C",
-  starEmpty: "#D5DBE3",
+  star: "#C2410C",
+  starEmpty: "#DCE1E7",
   info: "#1C4F9C",
   infoSoft: "#E7EFFB",
-  success: "#1D5C3F",
-  successSoft: "#E4F1EA",
+  success: "#157347",
+  successSoft: "#DCFCE7",
   online: "#22A45D",
   warning: "#B54708",
   danger: "#B42318",
@@ -83,14 +84,14 @@ export const colors = {
 
 export const accentHex = colors.accent;
 
-export const radius = { chip: 10, cell: 14, button: 16, card: 22, sheet: 24, pill: 999 };
+export const radius = { chip: 10, cell: 12, button: 14, card: 18, sheet: 20, pill: 999 };
 
 /** Solid logo tiles, picked per company so lists don't look uniform. `bar` underlines the initials. */
 const LOGO_TINTS = [
-  { background: "#0D1F33", ink: "#FFFFFF", bar: "#F28C38" },
-  { background: "#13708F", ink: "#FFFFFF", bar: "#9EE7F5" },
-  { background: "#1D5C3F", ink: "#FFFFFF", bar: "#9FE3BC" },
-  { background: "#55297A", ink: "#FFFFFF", bar: "#E1C6F7" },
+  { background: "#0B1F33", ink: "#FFFFFF", bar: "#FB923C" },
+  { background: "#0E6E8C", ink: "#FFFFFF", bar: "#A5F3FC" },
+  { background: "#157347", ink: "#FFFFFF", bar: "#BBF7D0" },
+  { background: "#4C2A85", ink: "#FFFFFF", bar: "#FCD34D" },
 ];
 
 export function logoTint(id) {
@@ -98,9 +99,9 @@ export function logoTint(id) {
 }
 
 export const fonts = {
-  "400": "Figtree_400Regular",
-  "500": "Figtree_500Medium",
-  "600": "Figtree_600SemiBold",
-  "700": "Figtree_700Bold",
-  "800": "Figtree_800ExtraBold",
+  "400": "Barlow_400Regular",
+  "500": "Barlow_500Medium",
+  "600": "Barlow_600SemiBold",
+  "700": "Barlow_700Bold",
+  "800": "Barlow_800ExtraBold",
 };

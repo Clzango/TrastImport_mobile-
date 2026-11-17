@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
-import { AuthLayout } from "@/components/auth-ui";
+import { AuthLayout, AuthSwitch } from "@/components/auth-ui";
 import { MethodSwitch, PhoneStart } from "@/components/phone-sign-in";
 import { SocialSignIn } from "@/components/social-sign-in";
 import { PillTabs } from "@/components/pill-tabs";
@@ -68,15 +68,8 @@ export default function SignUpScreen() {
   return (
     <AuthLayout
       title="Create your account"
-      subtitle="It takes about a minute."
-      footer={
-        <Text style={{ textAlign: "center", fontSize: 15, color: colors.secondaryLabel }}>
-          Already have an account?{" "}
-          <Text onPress={() => router.replace("/login")} style={{ fontWeight: "800", color: colors.container }} accessibilityRole="link">
-            Log in
-          </Text>
-        </Text>
-      }
+      subtitle="It takes about a minute. Find suppliers, compare shipping and get departure alerts."
+      footer={<AuthSwitch prompt="Already have an account?" action="Sign in" onPress={() => router.replace("/login")} />}
     >
       <MethodSwitch value={method} onChange={setMethod} />
       <View style={{ height: 18 }} />
@@ -162,11 +155,10 @@ export default function SignUpScreen() {
         )}
         <Button
           title="Create account"
-          variant="ink"
           onPress={() => mutation.mutate()}
           loading={mutation.isPending}
           disabled={!ready}
-          style={{ marginTop: 6, minHeight: 56, boxShadow: "0 8px 20px rgba(15,27,42,0.22)" }}
+          style={{ marginTop: 6, minHeight: 54, boxShadow: ready ? "0 8px 20px rgba(194,65,12,0.30)" : undefined }}
         />
         <Text style={{ textAlign: "center", fontSize: 13, lineHeight: 19, color: colors.tertiaryLabel }}>
           We'll email you a 6-digit code to confirm your address.

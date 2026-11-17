@@ -142,7 +142,7 @@ export function Field({ label, error, labelAction, revealable, icon, inset = tru
   const [focused, setFocused] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const inputRef = useRef(null);
-  const borderColor = error ? colors.danger : focused ? colors.ink : colors.inputBorder;
+  const borderColor = error ? colors.danger : focused ? colors.accent : colors.inputBorder;
 
   return (
     <View style={{ gap: 6, paddingHorizontal: inset ? 16 : 0, paddingVertical: inset ? 12 : 0 }}>
@@ -163,7 +163,7 @@ export function Field({ label, error, labelAction, revealable, icon, inset = tru
           borderRadius: radius.button,
           borderCurve: "continuous",
           backgroundColor: colors.inputBackground,
-          boxShadow: focused ? "0 0 0 4px rgba(15,27,42,0.08)" : undefined,
+          boxShadow: focused ? "0 0 0 4px rgba(194,65,12,0.12)" : undefined,
         }}
       >
         {icon && (
